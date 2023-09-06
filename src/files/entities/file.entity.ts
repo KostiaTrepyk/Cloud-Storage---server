@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 export enum FileType {
+  APPLICATIONS = 'applications',
   PHOTOS = 'photos',
   TRASH = 'trash',
 }

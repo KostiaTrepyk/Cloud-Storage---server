@@ -10,18 +10,35 @@ export class FilesService {
     private fileRepository: Repository<FileEntity>,
   ) {}
 
-  async findAll(userId: number, fileType: FileType) {
+  async findAll({
+    userId,
+    fileType,
+    page,
+    limit,
+  }: {
+    userId: number;
+    fileType: FileType;
+    page?: number;
+    limit?: number;
+  }) {
     const qb = this.fileRepository.createQueryBuilder('file');
 
     qb.where('file.userId = :userId', { userId });
 
     if (fileType === FileType.PHOTOS) {
-      // qb.andWhere('file.mimetype LIKE :type', { type: '%image%' });
+      qb.andWhere('file.mimetype LIKE :type', { type: '%image%' });
+    }
+
+    if (fileType === FileType.APPLICATIONS) {
+      qb.andWhere('file.mimetype LIKE :type', { type: '%application%' });
     }
 
     if (fileType === FileType.TRASH) {
       qb.withDeleted().andWhere('file.deletedAt IS NOT NULL');
     }
+
+    qb.skip(page * limit);
+    qb.take(limit);
 
     return qb.getMany();
   }
