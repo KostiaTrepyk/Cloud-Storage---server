@@ -9,16 +9,23 @@ import {
   UseGuards,
   Query,
   Delete,
-  HttpException,
-  HttpStatus,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
-import { FileEntity, FileType } from './entities/file.entity';
+import { FileEntity } from './entities/file.entity';
+import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -27,22 +34,21 @@ import { FileEntity, FileType } from './entities/file.entity';
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  /* FIX type error */
   @Get()
   async findAll(
     @UserId() userId: number,
-    @Query('type') fileType: FileType,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    query: GetAllFilesQueryDto,
   ): Promise<FileEntity[]> {
-    if (!userId || !fileType || !page || !limit)
-      throw new HttpException('BAD REQUEST', HttpStatus.BAD_REQUEST);
-
     return await this.filesService.findAll({
       userId,
-      fileType,
-      page,
-      limit,
+      ...query,
     });
   }
 

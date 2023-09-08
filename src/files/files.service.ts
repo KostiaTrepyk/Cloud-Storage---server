@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileEntity, FileType } from './entities/file.entity';
 import { Repository } from 'typeorm';
+import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
+import { SortValue } from './types';
 
 @Injectable()
 export class FilesService {
@@ -12,31 +14,46 @@ export class FilesService {
 
   async findAll({
     userId,
-    fileType,
-    page,
-    limit,
-  }: {
-    userId: number;
-    fileType: FileType;
-    page?: number;
-    limit?: number;
-  }) {
+    filesType,
+    page = 0,
+    limit = 10,
+    sort = SortValue.NO,
+    search,
+    createdAt,
+  }: GetAllFilesQueryDto & { userId: number }) {
     const qb = this.fileRepository.createQueryBuilder('file');
 
     qb.where('file.userId = :userId', { userId });
 
-    if (fileType === FileType.PHOTOS) {
+    /* Search by mimetype */
+    if (filesType === FileType.PHOTOS) {
       qb.andWhere('file.mimetype LIKE :type', { type: '%image%' });
-    }
-
-    if (fileType === FileType.APPLICATIONS) {
+    } else if (filesType === FileType.APPLICATIONS) {
       qb.andWhere('file.mimetype LIKE :type', { type: '%application%' });
-    }
-
-    if (fileType === FileType.TRASH) {
+    } else if (filesType === FileType.TRASH) {
       qb.withDeleted().andWhere('file.deletedAt IS NOT NULL');
     }
 
+    /* Sorting */
+    if (sort !== 'NO') {
+      qb.addOrderBy('originalname', sort);
+    }
+
+    /* Search by originalname */
+    if (search) {
+      qb.andWhere('file.originalname LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    /* Search by creation date */
+    if (createdAt) {
+      qb.andWhere('file.createdAt LIKE :createdAt', {
+        createdAt: `%${createdAt}%`,
+      });
+    }
+
+    /* Pagination */
     qb.skip(page * limit);
     qb.take(limit);
 

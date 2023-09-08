@@ -1,6 +1,7 @@
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
   Entity,
   ManyToOne,
@@ -8,6 +9,7 @@ import {
 } from 'typeorm';
 
 export enum FileType {
+  ALL = "all",
   APPLICATIONS = 'applications',
   PHOTOS = 'photos',
   TRASH = 'trash',
@@ -29,6 +31,9 @@ export class FileEntity {
 
   @Column()
   mimetype: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @DeleteDateColumn()
   deletedAt?: Date;

@@ -9,9 +9,9 @@ import { UserId } from 'src/decorators/user-id.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
   async getMe(@UserId() id: number) {
     return this.usersService.findById(id);
   }
