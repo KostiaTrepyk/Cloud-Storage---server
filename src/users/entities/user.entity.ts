@@ -1,5 +1,5 @@
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { FileEntity } from 'src/files/entities/file.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -15,6 +15,9 @@ export class UserEntity {
   @Column()
   password: string;
 
+  @CreateDateColumn()
+  createdAt: Date
+  
   @OneToMany(() => FileEntity, (file) => file.user)
   files: FileEntity[];
 }

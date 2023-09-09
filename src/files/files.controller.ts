@@ -12,20 +12,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
+import { UpdateResult } from 'typeorm';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -76,13 +70,16 @@ export class FilesController {
     )
     file: Express.Multer.File,
     @UserId() userId: number,
-  ) {
-    return this.filesService.create(file, userId);
+  ): Promise<FileEntity> {
+    return await this.filesService.create(file, userId);
   }
 
   @Delete()
-  remove(@UserId() userId: number, @Query('ids') ids: string) {
+  async remove(
+    @UserId() userId: number,
+    @Query('ids') ids: string,
+  ): Promise<UpdateResult> {
     // file?ids=1,2,6,7,0
-    return this.filesService.remove(userId, ids);
+    return await this.filesService.remove(userId, ids);
   }
 }

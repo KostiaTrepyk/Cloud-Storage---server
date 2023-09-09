@@ -1,10 +1,10 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserEntity } from './entities/user.entity';
 import { FileEntity } from 'src/files/entities/file.entity';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -15,16 +15,16 @@ export class UsersService {
     private filesRepository: Repository<FileEntity>,
   ) {}
 
-  async findByEmail(email: string) {
-    return this.usersRepository.findOne({
+  async findByEmail(email: string): Promise<UserEntity> {
+    return await this.usersRepository.findOne({
       where: {
         email,
       },
     });
   }
 
-  async findById(userId: number) {
-    return this.usersRepository.findOne({
+  async findById(userId: number): Promise<UserEntity> {
+    return await this.usersRepository.findOne({
       where: {
         id: userId,
       },
@@ -60,7 +60,7 @@ export class UsersService {
     };
   }
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto): Promise<UserEntity> {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
     const user = this.usersRepository.create({

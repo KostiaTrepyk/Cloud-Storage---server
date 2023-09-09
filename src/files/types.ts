@@ -3,3 +3,10 @@ export enum SortValue {
   DESC = 'DESC',
   NO = 'NO',
 }
+
+export enum FileType {
+  ALL = 'all',
+  APPLICATIONS = 'applications',
+  PHOTOS = 'photos',
+  TRASH = 'trash',
+}

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FileEntity, FileType } from './entities/file.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
+import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
-import { SortValue } from './types';
+import { FileType, SortValue } from './types';
 
 @Injectable()
 export class FilesService {
@@ -20,7 +20,7 @@ export class FilesService {
     sort = SortValue.NO,
     search,
     createdAt,
-  }: GetAllFilesQueryDto & { userId: number }) {
+  }: GetAllFilesQueryDto & { userId: number }): Promise<FileEntity[]> {
     const qb = this.fileRepository.createQueryBuilder('file');
 
     qb.where('file.userId = :userId', { userId });
@@ -60,7 +60,7 @@ export class FilesService {
     return qb.getMany();
   }
 
-  async create(file: Express.Multer.File, userId: number) {
+  async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
     return await this.fileRepository.save({
       filename: file.filename,
       originalname: file.originalname,
@@ -70,7 +70,7 @@ export class FilesService {
     });
   }
 
-  async remove(userId: number, ids: string) {
+  async remove(userId: number, ids: string): Promise<UpdateResult> {
     const idsArray = ids.split(',');
 
     const qb = this.fileRepository.createQueryBuilder('file');
@@ -80,6 +80,6 @@ export class FilesService {
       userId,
     });
 
-    return qb.softDelete().execute();
+    return await qb.softDelete().execute();
   }
 }

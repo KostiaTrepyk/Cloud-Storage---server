@@ -1,24 +1,21 @@
 import {
-  IsDate,
-  IsDateString,
   IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Matches,
   Max,
   Min,
 } from 'class-validator';
-import { FileType } from '../entities/file.entity';
-import { SortValue } from '../types';
 import { ApiProperty } from '@nestjs/swagger';
+import { FileType, SortValue } from '../types';
 
 /** Fix  */
 export class GetAllFilesQueryDto {
   /* Fix  */
-  @ApiProperty({ example: 'All', enum: FileType })
+  @ApiProperty({ example: FileType.ALL, enum: FileType })
   @IsNotEmpty()
+  @IsIn(Object.values(FileType))
   filesType: FileType;
 
   @ApiProperty({ example: 1, minimum: 1, required: false })
@@ -35,10 +32,10 @@ export class GetAllFilesQueryDto {
   limit: number;
 
   /* Fix Swagger? */
-  @ApiProperty({ example: 'NO', required: false, enum: SortValue })
+  @ApiProperty({ example: SortValue.NO, required: false, enum: SortValue })
   @IsOptional()
   @IsString()
-  @IsIn(['ASC', 'DESC', 'NO'])
+  @IsIn(Object.values(SortValue))
   sort: SortValue;
 
   @ApiProperty({ required: false })

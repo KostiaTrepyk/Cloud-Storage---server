@@ -1,4 +1,3 @@
-import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,13 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-
-export enum FileType {
-  ALL = "all",
-  APPLICATIONS = 'applications',
-  PHOTOS = 'photos',
-  TRASH = 'trash',
-}
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Entity({ name: 'files' })
 export class FileEntity {
