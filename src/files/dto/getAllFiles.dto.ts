@@ -21,7 +21,8 @@ export class GetAllFilesQueryDto {
   @IsNotEmpty()
   filesType: FileType;
 
-  @ApiProperty({ example: 0, required: false })
+  @ApiProperty({ example: 1, minimum: 1, required: false })
+  @Min(1)
   @IsOptional()
   @IsNumber()
   page: number;
@@ -47,5 +48,6 @@ export class GetAllFilesQueryDto {
 
   @ApiProperty({ example: '2023-09-07', required: false })
   @IsOptional()
+  @IsString()
   createdAt: string;
 }

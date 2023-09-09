@@ -12,7 +12,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getMe(@UserId() id: number) {
-    return this.usersService.findById(id);
+  async getMe(@UserId() userId: number) {
+    return await this.usersService.getStatistic(userId);
   }
 }

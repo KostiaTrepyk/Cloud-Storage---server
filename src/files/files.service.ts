@@ -15,8 +15,8 @@ export class FilesService {
   async findAll({
     userId,
     filesType,
-    page = 0,
-    limit = 10,
+    page = 1,
+    limit = 15,
     sort = SortValue.NO,
     search,
     createdAt,
@@ -54,7 +54,7 @@ export class FilesService {
     }
 
     /* Pagination */
-    qb.skip(page * limit);
+    qb.skip((page - 1) * limit);
     qb.take(limit);
 
     return qb.getMany();
