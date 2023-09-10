@@ -32,24 +32,24 @@ export class UsersService {
   }
 
   async getStatistic(userId: number) {
-    const thisUser = await this.usersRepository.findOne({
+    const { password, ...user } = await this.usersRepository.findOne({
       where: {
         id: userId,
       },
     });
 
-    const { password, ...user } = thisUser;
-
     const filesCount = await this.filesRepository.count({
       where: {
-        user: thisUser,
+        user: { id: userId },
       },
     });
+
     const averageFileSize = await this.filesRepository.average('size', {
-      user: thisUser,
+      user: { id: userId },
     });
+
     const totalFileSize = await this.filesRepository.sum('size', {
-      user: thisUser,
+      user: { id: userId },
     });
 
     return {

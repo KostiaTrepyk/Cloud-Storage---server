@@ -25,6 +25,9 @@ export class FileEntity {
   @Column()
   mimetype: string;
 
+  @Column({ default: false })
+  isFavourite: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

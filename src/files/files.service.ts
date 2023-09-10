@@ -14,13 +14,17 @@ export class FilesService {
 
   async findAll({
     userId,
-    filesType,
+    filesType = FileType.ALL,
     page = 1,
     limit = 15,
     sort = SortValue.NO,
     search,
     createdAt,
-  }: GetAllFilesQueryDto & { userId: number }): Promise<FileEntity[]> {
+  }: GetAllFilesQueryDto & { userId: number }): Promise<{
+    files: FileEntity[];
+    count: number;
+    isLastPage: boolean;
+  }> {
     const qb = this.fileRepository.createQueryBuilder('file');
 
     qb.where('file.userId = :userId', { userId });
@@ -37,6 +41,9 @@ export class FilesService {
     /* Sorting */
     if (sort !== 'NO') {
       qb.addOrderBy('originalname', sort);
+    } else {
+      /* Sort by creation time */
+      qb.addOrderBy('createdAt', 'DESC');
     }
 
     /* Search by originalname */
@@ -57,7 +64,11 @@ export class FilesService {
     qb.skip((page - 1) * limit);
     qb.take(limit);
 
-    return qb.getMany();
+    const count = await qb.getCount();
+    const isLastPage = count - page * limit <= 0;
+    const files = await qb.getMany();
+
+    return { files, count, isLastPage };
   }
 
   async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {

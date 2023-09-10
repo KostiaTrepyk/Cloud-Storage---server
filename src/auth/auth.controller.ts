@@ -6,7 +6,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { LocalAuthGuard } from './guards/local.guard';
 import { LoginDto } from './dto/login.dto';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

@@ -21,7 +21,7 @@ import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
 import { UpdateResult } from 'typeorm';
 
-@ApiTags('files')
+@ApiTags('Files')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('files')
@@ -39,7 +39,11 @@ export class FilesController {
       }),
     )
     query: GetAllFilesQueryDto,
-  ): Promise<FileEntity[]> {
+  ): Promise<{
+    files: FileEntity[];
+    count: number;
+    isLastPage: boolean;
+  }> {
     return await this.filesService.findAll({
       userId,
       ...query,
