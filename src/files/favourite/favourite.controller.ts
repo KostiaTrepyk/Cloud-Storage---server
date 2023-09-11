@@ -5,6 +5,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { AddToFavouriteDto } from './dto/addToFavourite.dto';
 import { RemoveFromFavouriteDto } from './dto/removeFromFavourite.dto';
 import { FileEntity } from '../entities/file.entity';
+import { UserId } from 'src/decorators/user-id.decorator';
 
 @ApiTags('Favourite files')
 @ApiBearerAuth()
@@ -14,17 +15,25 @@ export class FavouriteController {
   constructor(private readonly favouriteService: FavouriteService) {}
 
   @Get()
-  async findAll(): Promise<FileEntity[]> {
-    return await this.favouriteService.findAll();
+  async findAll(
+    @UserId() userId: number,
+  ): Promise<{ files: FileEntity[]; count: number }> {
+    return await this.favouriteService.findAll(userId);
   }
 
   @Put('add')
-  async addToFavourite(@Body() dto: AddToFavouriteDto) {
-    return await this.favouriteService.addToFavourite(dto);
+  async addToFavourite(
+    @UserId() userId: number,
+    @Body() dto: AddToFavouriteDto,
+  ) {
+    return await this.favouriteService.addToFavourite(userId, dto);
   }
 
   @Put('remove')
-  async removeFromFavourite(@Body() dto: RemoveFromFavouriteDto) {
-    return await this.favouriteService.removeFromFavourite(dto);
+  async removeFromFavourite(
+    @UserId() userId: number,
+    @Body() dto: RemoveFromFavouriteDto,
+  ) {
+    return await this.favouriteService.removeFromFavourite(userId, dto);
   }
 }

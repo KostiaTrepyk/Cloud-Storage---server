@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
@@ -72,6 +72,15 @@ export class FilesService {
   }
 
   async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
+    const total = await this.fileRepository.sum('size', {
+      user: { id: userId },
+      deletedAt: null,
+    });
+
+    if ((total + file.size) / 1024 / 1024 > 100) {
+      throw new HttpException('Max storage 100MB', HttpStatus.BAD_REQUEST);
+    }
+
     return await this.fileRepository.save({
       filename: file.filename,
       originalname: file.originalname,
@@ -90,6 +99,9 @@ export class FilesService {
       ids: idsArray,
       userId,
     });
+
+    /* !!!!!!!!!!!!!!!!! */
+    qb.update({ isFavourite: false });
 
     return await qb.softDelete().execute();
   }
