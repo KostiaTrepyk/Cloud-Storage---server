@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsInt, IsNumber } from 'class-validator';
 
 export class AddToFavouriteDto {
   @ApiProperty()
   @IsNumber()
+  @IsInt()
   fileId: number;
 }

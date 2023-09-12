@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -27,6 +29,12 @@ export class FileEntity {
 
   @Column({ default: false })
   isFavourite: boolean;
+
+  @ManyToMany(() => UserEntity, (user) => user.sharedFiles, {
+    cascade: true,
+  })
+  @JoinTable()
+  sharedWith: UserEntity[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,5 +1,6 @@
 import {
   IsIn,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -10,9 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { FileType, SortValue } from '../types';
 
-/** Fix  */
 export class GetAllFilesQueryDto {
-  /* Fix  */
   @ApiProperty({ example: FileType.ALL, enum: FileType })
   @IsNotEmpty()
   @IsIn(Object.values(FileType))
@@ -22,6 +21,7 @@ export class GetAllFilesQueryDto {
   @Min(1)
   @IsOptional()
   @IsNumber()
+  @IsInt()
   page: number;
 
   @ApiProperty({ example: 15, minimum: 10, maximum: 50, required: false })
@@ -29,6 +29,7 @@ export class GetAllFilesQueryDto {
   @Max(50)
   @IsOptional()
   @IsNumber()
+  @IsInt()
   limit: number;
 
   /* Fix Swagger? */

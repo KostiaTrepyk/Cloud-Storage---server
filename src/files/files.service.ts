@@ -28,6 +28,7 @@ export class FilesService {
     const qb = this.fileRepository.createQueryBuilder('file');
 
     qb.where('file.userId = :userId', { userId });
+   /*  qb.andWhere('ARRAY_CONTAINS(file.sharedWith, :userId)', { userId }); */
 
     /* Search by mimetype */
     if (filesType === FileType.PHOTOS) {

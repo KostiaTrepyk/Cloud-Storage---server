@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { FileEntity } from 'src/files/entities/file.entity';
 
 @Entity({ name: 'users' })
@@ -16,8 +23,11 @@ export class UserEntity {
   password: string;
 
   @CreateDateColumn()
-  createdAt: Date
-  
+  createdAt: Date;
+
   @OneToMany(() => FileEntity, (file) => file.user)
   files: FileEntity[];
+
+  @ManyToMany(() => FileEntity, (file) => file.sharedWith)
+  sharedFiles: FileEntity[];
 }
