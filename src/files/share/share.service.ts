@@ -5,8 +5,8 @@ import { FileEntity } from '../entities/file.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ShareWithDTO } from './dto/shareWith.dto';
 import { RemoveFromSharedDto } from './dto/removeFromShared.dto';
+import { removeDublicates } from 'helpers/removeDublicates';
 
-/** Fix */
 @Injectable()
 export class ShareService {
   constructor(
@@ -33,12 +33,17 @@ export class ShareService {
     return { files, count };
   }
 
-  /** Fix */
   async share({
     userId,
     fileId,
     shareWith,
   }: { userId: number } & ShareWithDTO) {
+    if (shareWith.includes(userId))
+      throw new HttpException(
+        "You can't share the file with yourself.",
+        HttpStatus.BAD_REQUEST,
+      );
+
     const usersToShareWith = await this.usersRepository.find({
       where: { id: In(shareWith) },
     });
@@ -54,8 +59,10 @@ export class ShareService {
         HttpStatus.BAD_REQUEST,
       );
 
-    /* Fix */
-    thisFile.sharedWith = [...thisFile.sharedWith, ...usersToShareWith];
+    thisFile.sharedWith = removeDublicates(
+      thisFile.sharedWith,
+      usersToShareWith,
+    );
 
     return await this.filesRepository.save(thisFile);
   }
