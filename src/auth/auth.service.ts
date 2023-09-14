@@ -1,5 +1,10 @@
 import * as bcrypt from 'bcrypt';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
@@ -13,17 +18,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser({
-    email,
-    password,
-  }: LoginDto): Promise<Omit<UserEntity, 'password'>> {
-    const user = await this.usersService.findByEmail(email);
+  async validateUser({ email, password }: LoginDto): Promise<UserEntity> {
+    const user = await this.usersService.findByEmail(email, { password: true });
+
+    if (!user)
+      throw new HttpException('Unauthorized.', HttpStatus.UNAUTHORIZED);
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (user && isMatch) {
-      const { password, ...result } = user;
-      return result;
+      return user;
     }
   }
 
@@ -37,7 +41,6 @@ export class AuthService {
         token: this.jwtService.sign({ id: userData.id }),
       };
     } catch (error) {
-      console.log(error);
       throw new ForbiddenException();
     }
   }

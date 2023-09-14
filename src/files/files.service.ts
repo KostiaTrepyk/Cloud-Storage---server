@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
 import { FileType, SortValue } from './types';
@@ -25,49 +25,45 @@ export class FilesService {
     count: number;
     isLastPage: boolean;
   }> {
-    const qb = this.fileRepository.createQueryBuilder('file');
+    const mimetype: string =
+      filesType === FileType.APPLICATIONS
+        ? '%application%'
+        : filesType === FileType.PHOTOS
+        ? '%image%'
+        : '';
 
-    qb.where('file.userId = :userId', { userId });
-   /*  qb.andWhere('ARRAY_CONTAINS(file.sharedWith, :userId)', { userId }); */
+    const findOptions: FindManyOptions<FileEntity> = {
+      where: {
+        user: { id: userId },
 
-    /* Search by mimetype */
-    if (filesType === FileType.PHOTOS) {
-      qb.andWhere('file.mimetype LIKE :type', { type: '%image%' });
-    } else if (filesType === FileType.APPLICATIONS) {
-      qb.andWhere('file.mimetype LIKE :type', { type: '%application%' });
-    } else if (filesType === FileType.TRASH) {
-      qb.withDeleted().andWhere('file.deletedAt IS NOT NULL');
-    }
+        mimetype: Like(`%${mimetype}%`),
+        /* FIX TYPE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+        createdAt: createdAt && Like(`%${createdAt}%` as any),
 
-    /* Sorting */
-    if (sort !== 'NO') {
-      qb.addOrderBy('originalname', sort);
-    } else {
-      /* Sort by creation time */
-      qb.addOrderBy('createdAt', 'DESC');
-    }
+        /* Trash */
+        deletedAt: filesType === FileType.TRASH ? Not(IsNull()) : IsNull(),
 
-    /* Search by originalname */
-    if (search) {
-      qb.andWhere('file.originalname LIKE :search', {
-        search: `%${search}%`,
-      });
-    }
+        /* Search by original name */
+        originalname: search && Like(`%${search}%`),
+      },
+      relations: { sharedWith: true },
 
-    /* Search by creation date */
-    if (createdAt) {
-      qb.andWhere('file.createdAt LIKE :createdAt', {
-        createdAt: `%${createdAt}%`,
-      });
-    }
+      /* Sorting */
+      order: {
+        /* default */
+        createdAt: sort === SortValue.NO ? 'DESC' : undefined,
 
-    /* Pagination */
-    qb.skip((page - 1) * limit);
-    qb.take(limit);
+        originalname: sort !== SortValue.NO && sort,
+      },
 
-    const count = await qb.getCount();
+      /* Pagination */
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    const files = await this.fileRepository.find(findOptions);
+    const count = await this.fileRepository.count(findOptions);
     const isLastPage = count - page * limit <= 0;
-    const files = await qb.getMany();
 
     return { files, count, isLastPage };
   }
@@ -91,19 +87,20 @@ export class FilesService {
     });
   }
 
-  async remove(userId: number, ids: string): Promise<UpdateResult> {
+  async remove(userId: number, ids: string) {
     const idsArray = ids.split(',');
 
-    const qb = this.fileRepository.createQueryBuilder('file');
+    try {
+      /* Remove from favourite */
+      await this.fileRepository.update(
+        { id: In(idsArray) },
+        { isFavourite: false },
+      );
+      await this.fileRepository.softDelete({ id: In(idsArray) });
+    } catch (error) {
+      return false;
+    }
 
-    qb.where('id IN (:...ids) AND userId = :userId', {
-      ids: idsArray,
-      userId,
-    });
-
-    /* !!!!!!!!!!!!!!!!! */
-    qb.update({ isFavourite: false });
-
-    return await qb.softDelete().execute();
+    return true;
   }
 }

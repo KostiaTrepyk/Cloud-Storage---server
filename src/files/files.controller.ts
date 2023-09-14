@@ -19,7 +19,6 @@ import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
-import { UpdateResult } from 'typeorm';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -82,7 +81,7 @@ export class FilesController {
   async remove(
     @UserId() userId: number,
     @Query('ids') ids: string,
-  ): Promise<UpdateResult> {
+  ): Promise<boolean> {
     // file?ids=1,2,6,7,0
     return await this.filesService.remove(userId, ids);
   }

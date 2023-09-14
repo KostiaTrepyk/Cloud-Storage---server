@@ -21,6 +21,7 @@ export class FavouriteService {
 
     const files = await this.fileRepository.find({
       where: { isFavourite: true, user: { id: userId } },
+      relations: { sharedWith: true },
     });
 
     return { files, count };
@@ -48,25 +49,36 @@ export class FavouriteService {
       );
     }
 
-    return await this.fileRepository.update(
-      { id: fileId },
-      {
-        isFavourite: true,
-        user: { id: userId },
-      },
-    );
+    try {
+      await this.fileRepository.update(
+        { id: fileId },
+        {
+          isFavourite: true,
+          user: { id: userId },
+        },
+      );
+    } catch (error) {
+      return false;
+    }
+
+    return true;
   }
 
   async removeFromFavourite(
     userId: number,
     { fileId }: RemoveFromFavouriteDto,
   ) {
-    return await this.fileRepository.update(
-      { id: fileId },
-      {
-        isFavourite: false,
-        user: { id: userId },
-      },
-    );
+    try {
+      await this.fileRepository.update(
+        { id: fileId },
+        {
+          isFavourite: false,
+          user: { id: userId },
+        },
+      );
+    } catch (error) {
+      return false;
+    }
+    return true;
   }
 }

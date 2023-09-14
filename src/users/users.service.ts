@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsSelect, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { FileEntity } from 'src/files/entities/file.entity';
@@ -15,24 +15,52 @@ export class UsersService {
     private filesRepository: Repository<FileEntity>,
   ) {}
 
-  async findByEmail(email: string): Promise<UserEntity> {
+  /** FIX */
+  async findByEmail(
+    email: string,
+    select?: FindOptionsSelect<UserEntity>,
+  ): Promise<UserEntity> {
     return await this.usersRepository.findOne({
       where: {
         email,
       },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        createdAt: true,
+        files: true,
+        sharedFiles: true,
+        password: false,
+        ...select,
+      },
     });
   }
 
-  async findById(userId: number): Promise<UserEntity> {
+  /** FIX */
+  async findById(
+    userId: number,
+    select?: FindOptionsSelect<UserEntity>,
+  ): Promise<UserEntity> {
     return await this.usersRepository.findOne({
       where: {
         id: userId,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        createdAt: true,
+        files: true,
+        sharedFiles: true,
+        password: false,
+        ...select,
       },
     });
   }
 
   async getStatistic(userId: number) {
-    const { password, ...user } = await this.usersRepository.findOne({
+    const user = await this.usersRepository.findOne({
       where: {
         id: userId,
       },
@@ -60,6 +88,7 @@ export class UsersService {
     };
   }
 
+  /** Returns user with password!!! */
   async create(dto: CreateUserDto): Promise<UserEntity> {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
