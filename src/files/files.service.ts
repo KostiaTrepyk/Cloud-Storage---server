@@ -24,6 +24,7 @@ export class FilesService {
     files: FileEntity[];
     count: number;
     isLastPage: boolean;
+    page: number;
   }> {
     const mimetype: string =
       filesType === FileType.APPLICATIONS
@@ -65,7 +66,7 @@ export class FilesService {
     const count = await this.fileRepository.count(findOptions);
     const isLastPage = count - page * limit <= 0;
 
-    return { files, count, isLastPage };
+    return { files, count, isLastPage, page };
   }
 
   async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
@@ -87,6 +88,7 @@ export class FilesService {
     });
   }
 
+  /** FIX */
   async remove(userId: number, ids: string) {
     const idsArray = ids.split(',');
 

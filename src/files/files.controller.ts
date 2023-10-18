@@ -42,6 +42,7 @@ export class FilesController {
     files: FileEntity[];
     count: number;
     isLastPage: boolean;
+    page: number;
   }> {
     return await this.filesService.findAll({
       userId,

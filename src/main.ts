@@ -9,7 +9,7 @@ async function bootstrap() {
 
   app.enableCors({ origin: ['http://localhost:3000'] });
 
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+  app.use('/uploads', express.static('uploads'));
 
   const config = new DocumentBuilder()
     .setTitle('Cloud Storage')
