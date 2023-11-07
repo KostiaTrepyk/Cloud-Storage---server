@@ -25,7 +25,7 @@ export class UserEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => FileEntity, (file) => file.user)
+  @OneToMany(() => FileEntity, (file) => file.owner)
   files: FileEntity[];
 
   @ManyToMany(() => FileEntity, (file) => file.sharedWith)

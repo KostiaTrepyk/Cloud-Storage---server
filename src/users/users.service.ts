@@ -1,10 +1,17 @@
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsSelect, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsOrder,
+  FindOptionsSelect,
+  Not,
+  Repository,
+} from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { FileEntity } from 'src/files/entities/file.entity';
+import { GetAllUsersDto } from './dto/get-all-users.dto';
 
 @Injectable()
 export class UsersService {
@@ -68,16 +75,16 @@ export class UsersService {
 
     const filesCount = await this.filesRepository.count({
       where: {
-        user: { id: userId },
+        owner: { id: userId },
       },
     });
 
     const averageFileSize = await this.filesRepository.average('size', {
-      user: { id: userId },
+      owner: { id: userId },
     });
 
     const totalFileSize = await this.filesRepository.sum('size', {
-      user: { id: userId },
+      owner: { id: userId },
     });
 
     return {
@@ -88,15 +95,51 @@ export class UsersService {
     };
   }
 
-  /** Returns user with password!!! */
+  async getAllUsers({
+    userId,
+    page = 1,
+    limit = 15,
+    searchByEmail,
+    orderBy,
+    orderValue,
+  }: GetAllUsersDto & { userId: number }) {
+    let order: FindOptionsOrder<UserEntity> = null;
+    if (orderBy === 'Creation' && orderValue) {
+      order = { createdAt: orderValue };
+    }
+    if (orderBy === 'SharedWith' && orderValue) {
+      order = { sharedFiles: { id: orderValue } };
+    }
+
+    const findOptions: FindManyOptions<UserEntity> = {
+      where: {
+        id: Not(userId),
+        email: searchByEmail,
+      },
+      relations: { sharedFiles: true },
+      order,
+
+      /* Pagination */
+      skip: (page - 1) * limit,
+      take: limit,
+    };
+
+    const count = await this.usersRepository.count(findOptions);
+    const users = await this.usersRepository.find(findOptions);
+    const isLastPage = count - page * limit <= 0;
+
+    return { page, count, isLastPage, users };
+  }
+
   async create(dto: CreateUserDto): Promise<UserEntity> {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
-    const user = this.usersRepository.create({
+
+    const user = this.usersRepository.save({
       ...dto,
       password: hashedPassword,
     });
 
-    return await this.usersRepository.save(user);
+    return user;
   }
 }

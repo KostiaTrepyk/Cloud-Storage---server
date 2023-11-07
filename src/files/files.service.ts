@@ -35,7 +35,7 @@ export class FilesService {
 
     const findOptions: FindManyOptions<FileEntity> = {
       where: {
-        user: { id: userId },
+        owner: { id: userId },
 
         mimetype: Like(`%${mimetype}%`),
         /* FIX TYPE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
@@ -47,7 +47,7 @@ export class FilesService {
         /* Search by original name */
         originalname: search && Like(`%${search}%`),
       },
-      relations: { sharedWith: true },
+      relations: { sharedWith: true, owner: true },
 
       /* Sorting */
       order: {
@@ -71,7 +71,7 @@ export class FilesService {
 
   async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
     const total = await this.fileRepository.sum('size', {
-      user: { id: userId },
+      owner: { id: userId },
       deletedAt: null,
     });
 
@@ -84,7 +84,7 @@ export class FilesService {
       originalname: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
-      user: { id: userId },
+      owner: { id: userId },
     });
   }
 

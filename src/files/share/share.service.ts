@@ -20,14 +20,14 @@ export class ShareService {
     userId: number,
   ): Promise<{ files: FileEntity[]; count: number }> {
     const where: FindOptionsWhere<FileEntity> = {
-      user: { id: userId },
+      owner: { id: userId },
       sharedWith: MoreThan(0),
     };
 
     const count = await this.filesRepository.count({ where });
     const files = await this.filesRepository.find({
       where,
-      relations: { sharedWith: true },
+      relations: { sharedWith: true, owner: true },
     });
 
     return { files, count };
@@ -49,8 +49,8 @@ export class ShareService {
     });
 
     const thisFile = await this.filesRepository.findOne({
-      where: { id: fileId, user: { id: userId } },
-      relations: { sharedWith: true },
+      where: { id: fileId, owner: { id: userId } },
+      relations: { sharedWith: true, owner: true },
     });
 
     if (!thisFile)
@@ -77,8 +77,8 @@ export class ShareService {
     });
 
     const thisFile = await this.filesRepository.findOne({
-      where: { id: fileId, user: { id: userId } },
-      relations: { sharedWith: true },
+      where: { id: fileId, owner: { id: userId } },
+      relations: { sharedWith: true, owner: true },
     });
 
     if (!thisFile) {

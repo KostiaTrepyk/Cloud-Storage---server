@@ -2,7 +2,6 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -21,7 +20,6 @@ export class GetAllFilesQueryDto {
   @ApiProperty({ example: 1, minimum: 1, required: false })
   @Min(1)
   @IsOptional()
-  @IsNumber()
   @IsInt()
   page: number;
 
@@ -29,7 +27,6 @@ export class GetAllFilesQueryDto {
   @Min(10)
   @Max(100)
   @IsOptional()
-  @IsNumber()
   @IsInt()
   limit: number;
 

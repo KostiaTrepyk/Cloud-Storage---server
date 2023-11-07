@@ -43,5 +43,5 @@ export class FileEntity {
   deletedAt?: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.files)
-  user: UserEntity;
+  owner: UserEntity;
 }

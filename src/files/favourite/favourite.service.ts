@@ -16,12 +16,12 @@ export class FavouriteService {
     userId: number,
   ): Promise<{ files: FileEntity[]; count: number }> {
     const count = await this.fileRepository.count({
-      where: { isFavourite: true, user: { id: userId } },
+      where: { isFavourite: true, owner: { id: userId } },
     });
 
     const files = await this.fileRepository.find({
-      where: { isFavourite: true, user: { id: userId } },
-      relations: { sharedWith: true },
+      where: { isFavourite: true, owner: { id: userId } },
+      relations: { sharedWith: true, owner: true },
     });
 
     return { files, count };
@@ -38,7 +38,7 @@ export class FavouriteService {
     const totalFavouriteFiles: number = await this.fileRepository.count({
       where: {
         isFavourite: true,
-        user: { id: userId },
+        owner: { id: userId },
       },
     });
 
@@ -54,7 +54,7 @@ export class FavouriteService {
         { id: fileId },
         {
           isFavourite: true,
-          user: { id: userId },
+          owner: { id: userId },
         },
       );
     } catch (error) {
@@ -73,7 +73,7 @@ export class FavouriteService {
         { id: fileId },
         {
           isFavourite: false,
-          user: { id: userId },
+          owner: { id: userId },
         },
       );
     } catch (error) {
