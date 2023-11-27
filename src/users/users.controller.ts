@@ -10,6 +10,7 @@ import { UserId } from 'src/decorators/user-id.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
+import { UserEntity } from './entities/user.entity';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -20,7 +21,7 @@ export class UsersController {
 
   @Get('me')
   async getMe(@UserId() userId: number) {
-    return await this.usersService.getStatistic(userId);
+    return await this.usersService.getUserData(userId);
   }
 
   @Get()
@@ -34,7 +35,10 @@ export class UsersController {
       }),
     )
     query: GetAllUsersDto,
-  ) {
+  ): Promise<{
+    count: number;
+    users: UserEntity[];
+  }> {
     return await this.usersService.getAllUsers({ ...query, userId });
   }
 }

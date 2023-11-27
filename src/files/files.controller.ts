@@ -42,7 +42,6 @@ export class FilesController {
     files: FileEntity[];
     count: number;
     isLastPage: boolean;
-    page: number;
   }> {
     return await this.filesService.findAll({
       userId,
@@ -78,12 +77,19 @@ export class FilesController {
     return await this.filesService.create(file, userId);
   }
 
-  @Delete()
-  async remove(
+  @Delete('softDelete')
+  async softDelete(
     @UserId() userId: number,
     @Query('ids') ids: string,
   ): Promise<boolean> {
-    // file?ids=1,2,6,7,0
-    return await this.filesService.remove(userId, ids);
+    return await this.filesService.softDelete(userId, ids);
+  }
+
+  @Delete('delete')
+  async delete(
+    @UserId() userId: number,
+    @Query('ids') ids: string,
+  ): Promise<boolean> {
+    return await this.filesService.delete(userId, ids);
   }
 }

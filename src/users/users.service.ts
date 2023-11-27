@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { FileEntity } from 'src/files/entities/file.entity';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 
 @Injectable()
@@ -18,8 +17,6 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
-    @InjectRepository(FileEntity)
-    private filesRepository: Repository<FileEntity>,
   ) {}
 
   /** FIX */
@@ -66,43 +63,27 @@ export class UsersService {
     });
   }
 
-  async getStatistic(userId: number) {
+  async getUserData(userId: number) {
     const user = await this.usersRepository.findOne({
       where: {
         id: userId,
       },
     });
 
-    const filesCount = await this.filesRepository.count({
-      where: {
-        owner: { id: userId },
-      },
-    });
-
-    const averageFileSize = await this.filesRepository.average('size', {
-      owner: { id: userId },
-    });
-
-    const totalFileSize = await this.filesRepository.sum('size', {
-      owner: { id: userId },
-    });
-
-    return {
-      user,
-      filesCount,
-      averageFileSize,
-      totalFileSize,
-    };
+    return user;
   }
 
   async getAllUsers({
     userId,
-    page = 1,
+    offset = 0,
     limit = 15,
     searchByEmail,
     orderBy,
     orderValue,
-  }: GetAllUsersDto & { userId: number }) {
+  }: GetAllUsersDto & { userId: number }): Promise<{
+    count: number;
+    users: UserEntity[];
+  }> {
     let order: FindOptionsOrder<UserEntity> = null;
     if (orderBy === 'Creation' && orderValue) {
       order = { createdAt: orderValue };
@@ -120,15 +101,15 @@ export class UsersService {
       order,
 
       /* Pagination */
-      skip: (page - 1) * limit,
+      skip: offset,
       take: limit,
     };
 
     const count = await this.usersRepository.count(findOptions);
     const users = await this.usersRepository.find(findOptions);
-    const isLastPage = count - page * limit <= 0;
+    const isLastPage = count - (offset + limit) <= 0;
 
-    return { page, count, isLastPage, users };
+    return { count, users };
   }
 
   async create(dto: CreateUserDto): Promise<UserEntity> {

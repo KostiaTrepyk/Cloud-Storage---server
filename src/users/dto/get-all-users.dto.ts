@@ -21,11 +21,11 @@ export class GetAllUsersDto {
   @IsIn(['ASC', 'DESC'])
   orderValue: 'ASC' | 'DESC';
 
-  @ApiProperty({ example: 1, minimum: 1, required: false })
-  @Min(1)
+  @ApiProperty({ example: 0, minimum: 0, required: false })
+  @Min(0)
   @IsOptional()
   @IsInt()
-  page: number;
+  offset: number;
 
   @ApiProperty({ example: 15, minimum: 10, maximum: 50, required: false })
   @Min(5)

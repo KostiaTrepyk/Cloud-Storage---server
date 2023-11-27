@@ -9,13 +9,13 @@ import { FileType, SortValue } from './types';
 export class FilesService {
   constructor(
     @InjectRepository(FileEntity)
-    private fileRepository: Repository<FileEntity>,
+    private filesRepository: Repository<FileEntity>,
   ) {}
 
   async findAll({
     userId,
     filesType = FileType.ALL,
-    page = 1,
+    offset = 0,
     limit = 15,
     sort = SortValue.NO,
     search,
@@ -23,8 +23,6 @@ export class FilesService {
   }: GetAllFilesQueryDto & { userId: number }): Promise<{
     files: FileEntity[];
     count: number;
-    isLastPage: boolean;
-    page: number;
   }> {
     const mimetype: string =
       filesType === FileType.APPLICATIONS
@@ -58,19 +56,18 @@ export class FilesService {
       },
 
       /* Pagination */
-      skip: (page - 1) * limit,
+      skip: offset,
       take: limit,
     };
 
-    const files = await this.fileRepository.find(findOptions);
-    const count = await this.fileRepository.count(findOptions);
-    const isLastPage = count - page * limit <= 0;
+    const files = await this.filesRepository.find(findOptions);
+    const count = await this.filesRepository.count(findOptions);
 
-    return { files, count, isLastPage, page };
+    return { files, count };
   }
 
   async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
-    const total = await this.fileRepository.sum('size', {
+    const total = await this.filesRepository.sum('size', {
       owner: { id: userId },
       deletedAt: null,
     });
@@ -79,7 +76,7 @@ export class FilesService {
       throw new HttpException('Max storage 100MB', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.fileRepository.save({
+    return await this.filesRepository.save({
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,
@@ -88,21 +85,58 @@ export class FilesService {
     });
   }
 
-  /** FIX */
-  async remove(userId: number, ids: string) {
+  async softDelete(userId: number, ids: string) {
     const idsArray = ids.split(',');
 
-    try {
-      /* Remove from favourite */
-      await this.fileRepository.update(
-        { id: In(idsArray) },
-        { isFavourite: false },
-      );
-      await this.fileRepository.softDelete({ id: In(idsArray) });
-    } catch (error) {
-      return false;
-    }
+    const files = await this.filesRepository.find({
+      where: {
+        owner: { id: userId },
+        id: In(idsArray),
+      },
+    });
+
+    files.forEach(async (file) => {
+      await this.filesRepository.update(file, { isFavourite: false });
+    });
+
+    await this.filesRepository.softDelete({
+      owner: { id: userId },
+      id: In(idsArray),
+    });
 
     return true;
+  }
+
+  async delete(userId: number, ids: string) {
+    const idsArray = ids.split(',');
+
+    await this.filesRepository.delete({
+      owner: { id: userId },
+      id: In(idsArray),
+    });
+
+    return true;
+  }
+
+  async getStatistic(userId: number) {
+    const filesCount = await this.filesRepository.count({
+      where: {
+        owner: { id: userId },
+      },
+    });
+
+    const averageFileSize = await this.filesRepository.average('size', {
+      owner: { id: userId },
+    });
+
+    const totalFileSize = await this.filesRepository.sum('size', {
+      owner: { id: userId },
+    });
+
+    return {
+      filesCount,
+      averageFileSize,
+      totalFileSize,
+    };
   }
 }
