@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { FileEntity } from 'src/files/entities/file.entity';
+import { FolderEntity } from 'src/folders/entities/folder.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -25,9 +26,12 @@ export class UserEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToMany(() => FileEntity, (file) => file.owner)
-  files: FileEntity[];
+  @OneToMany(() => FolderEntity, (folder) => folder.owner)
+  folders: FolderEntity[];
 
   @ManyToMany(() => FileEntity, (file) => file.sharedWith)
   sharedFiles: FileEntity[];
+
+  @OneToMany(() => FileEntity, (file) => file.owner)
+  files: FileEntity[];
 }

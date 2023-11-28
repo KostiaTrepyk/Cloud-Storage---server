@@ -34,7 +34,7 @@ export class UsersController {
         forbidNonWhitelisted: true,
       }),
     )
-    query: GetAllUsersDto,
+    query?: GetAllUsersDto,
   ): Promise<{
     count: number;
     users: UserEntity[];

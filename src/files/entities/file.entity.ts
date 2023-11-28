@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { FolderEntity } from 'src/folders/entities/folder.entity';
 
 @Entity({ name: 'files' })
 export class FileEntity {
@@ -41,6 +42,9 @@ export class FileEntity {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @ManyToOne(() => FolderEntity, (folder) => folder.files)
+  folder: FolderEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.files)
   owner: UserEntity;

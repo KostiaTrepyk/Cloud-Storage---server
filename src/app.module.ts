@@ -6,6 +6,8 @@ import { FilesModule } from './files/files.module';
 import { UserEntity } from './users/entities/user.entity';
 import { FileEntity } from './files/entities/file.entity';
 import { AuthModule } from './auth/auth.module';
+import { FoldersModule } from './folders/folders.module';
+import { FolderEntity } from './folders/entities/folder.entity';
 
 @Module({
   imports: [
@@ -17,10 +19,11 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity, FileEntity],
+      entities: [UserEntity, FileEntity, FolderEntity],
       synchronize: true,
     }),
     UsersModule,
+    FoldersModule,
     FilesModule,
     AuthModule,
   ],

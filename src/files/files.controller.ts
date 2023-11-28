@@ -41,7 +41,6 @@ export class FilesController {
   ): Promise<{
     files: FileEntity[];
     count: number;
-    isLastPage: boolean;
   }> {
     return await this.filesService.findAll({
       userId,
