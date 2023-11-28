@@ -1,7 +1,18 @@
-import { Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FoldersService } from './folders.service';
+import { CreateFolderDto } from './dto/create-folder.dto';
+import { UserId } from 'src/decorators/user-id.decorator';
+import { FolderEntity } from './entities/folder.entity';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -16,8 +27,11 @@ export class FoldersController {
   }
 
   @Post()
-  async createFolder() {
-    return await this.foldersService.createFolder();
+  async createFolder(
+    @UserId() userId: number,
+    @Body() dto: CreateFolderDto,
+  ): Promise<FolderEntity> {
+    return await this.foldersService.createFolder({ userId, ...dto });
   }
 
   @Put()

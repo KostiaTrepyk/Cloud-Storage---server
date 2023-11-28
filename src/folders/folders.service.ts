@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { FolderEntity } from './entities/folder.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { FolderEntity } from './entities/folder.entity';
+import { CreateFolderDto } from './dto/create-folder.dto';
 
 @Injectable()
 export class FoldersService {
@@ -10,11 +11,21 @@ export class FoldersService {
     private foldersRepository: Repository<FolderEntity>,
   ) {}
 
-  getFolders() {}
+  async getFolders() {}
 
-  createFolder() {}
+  async createFolder({
+    userId,
+    folderName,
+  }: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
+    const createdFolder = this.foldersRepository.create({
+      name: folderName,
+      owner: { id: userId },
+    });
 
-  updateFolder() {}
+    return await this.foldersRepository.save(createdFolder);
+  }
 
-  deleteFolder() {}
+  async updateFolder() {}
+
+  async deleteFolder() {}
 }
