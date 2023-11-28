@@ -13,6 +13,7 @@ import { FoldersService } from './folders.service';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { FolderEntity } from './entities/folder.entity';
+import { UpdateFolderDto } from './dto/update-folder.dto';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -35,8 +36,11 @@ export class FoldersController {
   }
 
   @Put()
-  async updateFolder() {
-    return await this.foldersService.updateFolder();
+  async updateFolder(
+    @UserId() userId: number,
+    @Body() dto: UpdateFolderDto,
+  ): Promise<boolean> {
+    return await this.foldersService.updateFolder({ userId, ...dto });
   }
 
   @Delete()

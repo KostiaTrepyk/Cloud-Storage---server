@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FolderEntity } from './entities/folder.entity';
 import { CreateFolderDto } from './dto/create-folder.dto';
+import { UpdateFolderDto } from './dto/update-folder.dto';
 
 @Injectable()
 export class FoldersService {
@@ -25,7 +26,18 @@ export class FoldersService {
     return await this.foldersRepository.save(createdFolder);
   }
 
-  async updateFolder() {}
+  async updateFolder({
+    userId,
+    folderId,
+    newFolderName,
+  }: UpdateFolderDto & { userId: number }): Promise<boolean> {
+    const updateResult = await this.foldersRepository.update(
+      { id: folderId, owner: { id: userId } },
+      { name: newFolderName },
+    );
+
+    return Boolean(updateResult.affected);
+  }
 
   async deleteFolder() {}
 }
