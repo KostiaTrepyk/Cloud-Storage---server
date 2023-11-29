@@ -19,7 +19,7 @@ import { UserId } from 'src/decorators/user-id.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from './entities/file.entity';
-import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
+import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { CreateFileDto } from './dto/create-file.dto';
 
 @ApiTags('Files')
@@ -29,7 +29,7 @@ import { CreateFileDto } from './dto/create-file.dto';
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @Get()
+  @Get('all')
   async findAll(
     @UserId() userId: number,
     @Query(
@@ -50,7 +50,7 @@ export class FilesController {
     });
   }
 
-  @Post()
+  @Post('save')
   @UseInterceptors(FileInterceptor('file', { storage: fileStorage }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -74,9 +74,9 @@ export class FilesController {
       }),
     )
     file: Express.Multer.File,
-    @Body() dto: CreateFileDto
+    @Body() dto: CreateFileDto,
   ): Promise<FileEntity> {
-    return await this.filesService.create({file, userId, ...dto});
+    return await this.filesService.create({ file, userId, ...dto });
   }
 
   @Delete('softDelete')

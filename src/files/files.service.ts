@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
-import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
+import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { FileType, SortValue } from './types';
 import { CreateFileDto } from './dto/create-file.dto';
 
