@@ -29,7 +29,9 @@ export class UserEntity {
   @OneToMany(() => FolderEntity, (folder) => folder.owner)
   folders: FolderEntity[];
 
-  @ManyToMany(() => FileEntity, (file) => file.sharedWith)
+  @ManyToMany(() => FileEntity, (file) => file.sharedWith, {
+    onDelete: 'CASCADE',
+  })
   sharedFiles: FileEntity[];
 
   @OneToMany(() => FileEntity, (file) => file.owner)

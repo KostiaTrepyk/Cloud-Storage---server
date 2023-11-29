@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -16,9 +17,12 @@ export class FolderEntity {
   @Column()
   name: string;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @OneToMany(() => FileEntity, (file) => file.folder)
   files: FileEntity[];
 
-  @ManyToOne(() => UserEntity, (user) => user.folders)
+  @ManyToOne(() => UserEntity, (user) => user.folders, { onDelete: 'CASCADE' })
   owner: UserEntity;
 }

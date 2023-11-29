@@ -18,7 +18,7 @@ export class FilesService {
     offset = 0,
     limit = 15,
     sort = SortValue.NO,
-    search,
+    search = '',
     createdAt,
   }: GetAllFilesQueryDto & { userId: number }): Promise<{
     files: FileEntity[];
@@ -43,7 +43,7 @@ export class FilesService {
         deletedAt: filesType === FileType.TRASH ? Not(IsNull()) : IsNull(),
 
         /* Search by original name */
-        originalname: search && Like(`%${search}%`),
+        originalname: Boolean(search) && Like(`%${search}%`),
       },
       relations: { sharedWith: true, owner: true },
 

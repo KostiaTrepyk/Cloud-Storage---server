@@ -5,6 +5,7 @@ import {
   FindManyOptions,
   FindOptionsOrder,
   FindOptionsSelect,
+  Like,
   Not,
   Repository,
 } from 'typeorm';
@@ -77,7 +78,7 @@ export class UsersService {
     userId,
     offset = 0,
     limit = 15,
-    searchByEmail,
+    searchByEmail = '',
     orderBy,
     orderValue,
   }: GetAllUsersDto & { userId: number }): Promise<{
@@ -95,7 +96,7 @@ export class UsersService {
     const findOptions: FindManyOptions<UserEntity> = {
       where: {
         id: Not(userId),
-        email: searchByEmail,
+        email: Boolean(searchByEmail) && Like(searchByEmail),
       },
       relations: { sharedFiles: true },
       order,
@@ -107,7 +108,6 @@ export class UsersService {
 
     const count = await this.usersRepository.count(findOptions);
     const users = await this.usersRepository.find(findOptions);
-    const isLastPage = count - (offset + limit) <= 0;
 
     return { count, users };
   }

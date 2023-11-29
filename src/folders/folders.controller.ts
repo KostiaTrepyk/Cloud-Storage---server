@@ -5,7 +5,9 @@ import {
   Get,
   Post,
   Put,
+  Query,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
@@ -14,6 +16,7 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { FolderEntity } from './entities/folder.entity';
 import { UpdateFolderDto } from './dto/update-folder.dto';
+import { GetFoldersDto } from './dto/get-folders.dto';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -23,8 +26,21 @@ export class FoldersController {
   constructor(private readonly foldersService: FoldersService) {}
 
   @Get()
-  async getFolders() {
-    return await this.foldersService.getFolders();
+  async getFolders(
+    @UserId() userId: number,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    dto: GetFoldersDto,
+  ): Promise<{
+    folders: FolderEntity[];
+    count: number;
+  }> {
+    return await this.foldersService.getFolders({ userId, ...dto });
   }
 
   @Post()
