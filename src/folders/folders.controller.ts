@@ -11,12 +11,14 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { FoldersService } from './folders.service';
-import { CreateFolderDto } from './dto/create-folder.dto';
 import { UserId } from 'src/decorators/user-id.decorator';
+import { FoldersService } from './folders.service';
 import { FolderEntity } from './entities/folder.entity';
+
+import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { GetFoldersDto } from './dto/get-folders.dto';
+import { DeleteFoldersDto } from './dto/delete-folders.dto';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -60,7 +62,10 @@ export class FoldersController {
   }
 
   @Delete()
-  async deleteFolder() {
-    return await this.foldersService.deleteFolder();
+  async deleteFolders(
+    @UserId() userId: number,
+    @Body() dto: DeleteFoldersDto,
+  ): Promise<boolean> {
+    return await this.foldersService.deleteFolders({ userId, ...dto });
   }
 }

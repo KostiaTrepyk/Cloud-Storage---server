@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, IsNull, Like, Not, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { FolderEntity } from './entities/folder.entity';
+import { SortValue } from 'src/files/types';
+
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { GetFoldersDto } from './dto/get-folders.dto';
-import { SortValue } from 'src/files/types';
+import { DeleteFoldersDto } from './dto/delete-folders.dto';
 
 @Injectable()
 export class FoldersService {
@@ -83,5 +85,15 @@ export class FoldersService {
     return Boolean(updateResult.affected);
   }
 
-  async deleteFolder() {}
+  async deleteFolders({
+    userId,
+    foldersIds,
+  }: DeleteFoldersDto & { userId: number }): Promise<boolean> {
+    const deleteResult = await this.foldersRepository.delete({
+      owner: { id: userId },
+      id: In(foldersIds),
+    });
+
+    return Boolean(deleteResult.affected);
+  }
 }
