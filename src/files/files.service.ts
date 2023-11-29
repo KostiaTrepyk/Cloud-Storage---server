@@ -4,6 +4,7 @@ import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
 import { FileType, SortValue } from './types';
+import { CreateFileDto } from './dto/create-file.dto';
 
 @Injectable()
 export class FilesService {
@@ -12,6 +13,7 @@ export class FilesService {
     private filesRepository: Repository<FileEntity>,
   ) {}
 
+  /* Update Route !!!!!!!!!!!!!!!! */
   async findAll({
     userId,
     filesType = FileType.ALL,
@@ -66,23 +68,32 @@ export class FilesService {
     return { files, count };
   }
 
-  async create(file: Express.Multer.File, userId: number): Promise<FileEntity> {
+  async create({
+    file,
+    userId,
+    folderId,
+  }: {
+    file: Express.Multer.File;
+    userId: number;
+  } & CreateFileDto): Promise<FileEntity> {
     const total = await this.filesRepository.sum('size', {
       owner: { id: userId },
-      deletedAt: null,
     });
 
     if ((total + file.size) / 1024 / 1024 > 100) {
       throw new HttpException('Max storage 100MB', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.filesRepository.save({
+    const createdFile = this.filesRepository.create({
+      folder: { id: folderId },
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
       owner: { id: userId },
     });
+
+    return await this.filesRepository.save(createdFile);
   }
 
   async softDelete(userId: number, ids: string) {

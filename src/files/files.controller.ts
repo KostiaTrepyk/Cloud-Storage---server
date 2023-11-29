@@ -10,6 +10,7 @@ import {
   Query,
   Delete,
   ValidationPipe,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/getAllFiles.dto';
+import { CreateFileDto } from './dto/create-file.dto';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -63,6 +65,7 @@ export class FilesController {
     },
   })
   async create(
+    @UserId() userId: number,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -71,9 +74,9 @@ export class FilesController {
       }),
     )
     file: Express.Multer.File,
-    @UserId() userId: number,
+    @Body() dto: CreateFileDto
   ): Promise<FileEntity> {
-    return await this.filesService.create(file, userId);
+    return await this.filesService.create({file, userId, ...dto});
   }
 
   @Delete('softDelete')
