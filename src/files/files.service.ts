@@ -5,6 +5,7 @@ import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { FileType, SortValue } from './types';
 import { CreateFileDto } from './dto/create-file.dto';
+import { FilesStatistic } from './types/FilesStatistic';
 
 @Injectable()
 export class FilesService {
@@ -13,7 +14,6 @@ export class FilesService {
     private filesRepository: Repository<FileEntity>,
   ) {}
 
-  /* Update Route !!!!!!!!!!!!!!!! */
   async findAll({
     userId,
     filesType = FileType.ALL,
@@ -96,7 +96,7 @@ export class FilesService {
     return await this.filesRepository.save(createdFile);
   }
 
-  async softDelete(userId: number, ids: string) {
+  async softDelete(userId: number, ids: string): Promise<boolean> {
     const idsArray = ids.split(',');
 
     const files = await this.filesRepository.find({
@@ -118,7 +118,7 @@ export class FilesService {
     return true;
   }
 
-  async delete(userId: number, ids: string) {
+  async delete(userId: number, ids: string): Promise<boolean> {
     const idsArray = ids.split(',');
 
     await this.filesRepository.delete({
@@ -129,7 +129,7 @@ export class FilesService {
     return true;
   }
 
-  async getStatistic(userId: number) {
+  async getStatistic(userId: number): Promise<FilesStatistic> {
     const filesCount = await this.filesRepository.count({
       where: {
         owner: { id: userId },

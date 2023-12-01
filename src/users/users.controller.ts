@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Query,
   UseGuards,
   ValidationPipe,
@@ -11,17 +13,32 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { UserEntity } from './entities/user.entity';
+import { FilesService } from 'src/files/files.service';
+import { FilesStatistic } from 'src/files/types/FilesStatistic';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly filesService: FilesService,
+  ) {}
 
-  @Get('user')
-  async getUserData(@UserId() userId: number): Promise<UserEntity> {
-    return await this.usersService.getUserData(userId);
+  @Get('me')
+  async getUserData(
+    @UserId() userId: number,
+  ): Promise<{ user: UserEntity; statistic: FilesStatistic }> {
+    const response = {
+      user: await this.usersService.getUserData(userId),
+      statistic: await this.filesService.getStatistic(userId),
+    };
+
+    if (!response.user || !response.statistic)
+      throw new HttpException('Server error', HttpStatus.INTERNAL_SERVER_ERROR);
+
+    return response;
   }
 
   @Get('allUsers')

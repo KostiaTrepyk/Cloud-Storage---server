@@ -15,5 +15,6 @@ import { UserEntity } from 'src/users/entities/user.entity';
   ],
   controllers: [FilesController],
   providers: [FilesService],
+  exports: [FilesService]
 })
 export class FilesModule {}
