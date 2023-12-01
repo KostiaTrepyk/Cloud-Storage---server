@@ -64,7 +64,7 @@ export class UsersService {
     });
   }
 
-  async getUserData(userId: number) {
+  async getUserData(userId: number): Promise<UserEntity> {
     const user = await this.usersRepository.findOne({
       where: {
         id: userId,

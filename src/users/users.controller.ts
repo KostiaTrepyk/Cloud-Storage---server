@@ -19,13 +19,13 @@ import { UserEntity } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
-  async getMe(@UserId() userId: number) {
+  @Get('user')
+  async getUserData(@UserId() userId: number): Promise<UserEntity> {
     return await this.usersService.getUserData(userId);
   }
 
-  @Get()
-  async getUsers(
+  @Get('allUsers')
+  async getAllUsers(
     @UserId() userId: number,
     @Query(
       new ValidationPipe({
