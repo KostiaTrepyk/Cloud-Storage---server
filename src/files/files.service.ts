@@ -93,7 +93,11 @@ export class FilesService {
       owner: { id: userId },
     });
 
-    return await this.filesRepository.save(createdFile);
+    try {
+      return await this.filesRepository.save(createdFile);
+    } catch (error) {
+      throw new HttpException('Can not save file!', HttpStatus.BAD_REQUEST);
+    }
   }
 
   async softDelete(userId: number, ids: string): Promise<boolean> {

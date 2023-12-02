@@ -61,6 +61,10 @@ export class FilesController {
           type: 'string',
           format: 'binary',
         },
+        folderId: {
+          type: 'number',
+          format: 'int',
+        },
       },
     },
   })
