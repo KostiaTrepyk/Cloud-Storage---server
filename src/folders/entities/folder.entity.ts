@@ -20,8 +20,12 @@ export class FolderEntity {
   @CreateDateColumn()
   createdAt: Date;
 
+  /* root === 0 */
+  @Column()
+  parrentFolderId?: number;
+
   @OneToMany(() => FileEntity, (file) => file.folder)
-  files: FileEntity[];
+  items: (FileEntity | FolderEntity)[];
 
   @ManyToOne(() => UserEntity, (user) => user.folders, { onDelete: 'CASCADE' })
   owner: UserEntity;

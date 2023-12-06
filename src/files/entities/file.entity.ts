@@ -43,7 +43,7 @@ export class FileEntity {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @ManyToOne(() => FolderEntity, (folder) => folder.files, {
+  @ManyToOne(() => FolderEntity, (folder) => folder.items, {
     onDelete: 'CASCADE',
   })
   folder: FolderEntity;

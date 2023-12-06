@@ -111,7 +111,10 @@ export class FilesService {
     });
 
     files.forEach(async (file) => {
-      await this.filesRepository.update(file, { isFavourite: false });
+      await this.filesRepository.update(
+        { id: file.id },
+        { isFavourite: false },
+      );
     });
 
     await this.filesRepository.softDelete({

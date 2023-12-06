@@ -4,9 +4,9 @@ import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { FolderEntity } from './entities/folder.entity';
 import { SortValue } from 'src/files/types';
 
+import { GetFoldersDto } from './dto/get-folders.dto';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
-import { GetFoldersDto } from './dto/get-folders.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 
 @Injectable()
@@ -22,6 +22,7 @@ export class FoldersService {
     offset = 0,
     search = '',
     sort = SortValue.NO,
+    parrentFolderId,
     createdAt,
   }: GetFoldersDto & {
     userId: number;
@@ -33,13 +34,15 @@ export class FoldersService {
       where: {
         owner: { id: userId },
 
+        parrentFolderId,
+
         /* FIX TYPE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
         createdAt: createdAt && Like(`%${createdAt}%` as any),
 
         /* Search by name */
         name: Boolean(search) && Like(`%${search}%`),
       },
-      relations: { files: true },
+      relations: { items: true },
 
       /* Sorting */
       order: {
@@ -63,10 +66,12 @@ export class FoldersService {
   async createFolder({
     userId,
     folderName,
+    parrentFolderId = 0,
   }: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
     const createdFolder = this.foldersRepository.create({
       name: folderName,
       owner: { id: userId },
+      parrentFolderId,
     });
 
     return await this.foldersRepository.save(createdFolder);
@@ -76,10 +81,11 @@ export class FoldersService {
     userId,
     folderId,
     newFolderName,
+    newParrentFolderId,
   }: UpdateFolderDto & { userId: number }): Promise<boolean> {
     const updateResult = await this.foldersRepository.update(
       { id: folderId, owner: { id: userId } },
-      { name: newFolderName },
+      { name: newFolderName, parrentFolderId: newParrentFolderId },
     );
 
     return Boolean(updateResult.affected);

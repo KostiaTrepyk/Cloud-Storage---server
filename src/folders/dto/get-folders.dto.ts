@@ -32,4 +32,14 @@ export class GetFoldersDto {
   @IsOptional()
   @IsString()
   createdAt: string;
+
+  @ApiProperty({
+    example: undefined,
+    required: false,
+    description: 'Root === 0',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  parrentFolderId?: number | undefined;
 }
