@@ -25,7 +25,7 @@ export class FolderEntity {
   parrentFolderId?: number;
 
   @OneToMany(() => FileEntity, (file) => file.folder)
-  items: (FileEntity | FolderEntity)[];
+  files: FileEntity[];
 
   @ManyToOne(() => UserEntity, (user) => user.folders, { onDelete: 'CASCADE' })
   owner: UserEntity;

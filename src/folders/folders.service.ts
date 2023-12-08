@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Repository } from 'typeorm';
 import { FolderEntity } from './entities/folder.entity';
-import { SortValue } from 'src/files/types';
+import { type FileEntity } from 'src/files/entities/file.entity';
 
-import { GetFoldersDto } from './dto/get-folders.dto';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
+import { GetFolderOneDto } from './dto/get-folder-one';
 
 @Injectable()
 export class FoldersService {
@@ -16,51 +16,44 @@ export class FoldersService {
     private foldersRepository: Repository<FolderEntity>,
   ) {}
 
-  async getFolders({
+  async getOneFolder({
     userId,
-    limit = 20,
-    offset = 0,
-    search = '',
-    sort = SortValue.NO,
-    parrentFolderId,
-    createdAt,
-  }: GetFoldersDto & {
+    folderId = 0,
+  }: GetFolderOneDto & {
     userId: number;
   }): Promise<{
+    currentFolder: FolderEntity;
     folders: FolderEntity[];
-    count: number;
+    files: FileEntity[];
   }> {
-    const findOptions: FindManyOptions<FolderEntity> = {
+    const currentFolderFindOptions: FindManyOptions<FolderEntity> = {
+      where: {
+        id: folderId,
+        owner: { id: userId },
+      },
+    };
+    const foldersFindOptions: FindManyOptions<FolderEntity> = {
+      where: {
+        parrentFolderId: folderId,
+        owner: { id: userId },
+      },
+    };
+    const filesFindOptions: FindManyOptions<FolderEntity> = {
       where: {
         owner: { id: userId },
-
-        parrentFolderId,
-
-        /* FIX TYPE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-        createdAt: createdAt && Like(`%${createdAt}%` as any),
-
-        /* Search by name */
-        name: Boolean(search) && Like(`%${search}%`),
+        id: folderId,
       },
-      relations: { items: true },
-
-      /* Sorting */
-      order: {
-        /* default */
-        createdAt: sort === SortValue.NO ? 'DESC' : undefined,
-
-        name: sort !== SortValue.NO && sort,
-      },
-
-      /* Pagination */
-      skip: offset,
-      take: limit,
+      relations: { files: { sharedWith: true } },
     };
 
-    const folders = await this.foldersRepository.find(findOptions);
-    const count = await this.foldersRepository.count(findOptions);
+    const currentFolder = await this.foldersRepository.findOne(
+      currentFolderFindOptions,
+    );
+    const folders = await this.foldersRepository.find(foldersFindOptions);
+    const files =
+      (await this.foldersRepository.findOne(filesFindOptions))?.files ?? [];
 
-    return { folders, count };
+    return { currentFolder, folders, files };
   }
 
   async createFolder({
@@ -68,13 +61,11 @@ export class FoldersService {
     folderName,
     parrentFolderId = 0,
   }: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
-    const createdFolder = this.foldersRepository.create({
+    return this.foldersRepository.save({
       name: folderName,
       owner: { id: userId },
       parrentFolderId,
     });
-
-    return await this.foldersRepository.save(createdFolder);
   }
 
   async updateFolder({

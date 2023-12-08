@@ -14,11 +14,12 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { FoldersService } from './folders.service';
 import { FolderEntity } from './entities/folder.entity';
+import { type FileEntity } from 'src/files/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
-import { GetFoldersDto } from './dto/get-folders.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
+import { GetFolderOneDto } from './dto/get-folder-one';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -27,8 +28,8 @@ import { DeleteFoldersDto } from './dto/delete-folders.dto';
 export class FoldersController {
   constructor(private readonly foldersService: FoldersService) {}
 
-  @Get()
-  async getFolders(
+  @Get('one')
+  async getFolder(
     @UserId() userId: number,
     @Query(
       new ValidationPipe({
@@ -37,12 +38,13 @@ export class FoldersController {
         forbidNonWhitelisted: true,
       }),
     )
-    dto: GetFoldersDto,
+    dto: GetFolderOneDto,
   ): Promise<{
+    currentFolder: FolderEntity;
     folders: FolderEntity[];
-    count: number;
+    files: FileEntity[];
   }> {
-    return await this.foldersService.getFolders({ userId, ...dto });
+    return await this.foldersService.getOneFolder({ userId, ...dto });
   }
 
   @Post()
