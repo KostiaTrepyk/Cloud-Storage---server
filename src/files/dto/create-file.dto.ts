@@ -6,4 +6,7 @@ export class CreateFileDto {
   @IsNumber()
   @IsInt()
   folderId: number;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: any;
 }

@@ -54,22 +54,10 @@ export class FilesController {
   @UseInterceptors(FileInterceptor('file', { storage: fileStorage }))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-        folderId: {
-          type: 'number',
-          format: 'int',
-        },
-      },
-    },
+    type: CreateFileDto,
   })
   async create(
-    @UserId() userId: number,
+    @Body() dto: CreateFileDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -78,7 +66,7 @@ export class FilesController {
       }),
     )
     file: Express.Multer.File,
-    @Body() dto: CreateFileDto,
+    @UserId() userId: number,
   ): Promise<FileEntity> {
     return await this.filesService.create({ file, userId, ...dto });
   }
