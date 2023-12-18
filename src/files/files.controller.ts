@@ -11,6 +11,7 @@ import {
   Delete,
   ValidationPipe,
   Body,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -21,6 +22,7 @@ import { FilesService } from './files.service';
 import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { CreateFileDto } from './dto/create-file.dto';
+import { UpdateFileDto } from './dto/update-file.dto';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -69,6 +71,11 @@ export class FilesController {
     @UserId() userId: number,
   ): Promise<FileEntity> {
     return await this.filesService.create({ file, userId, ...dto });
+  }
+
+  @Put()
+  async update(@UserId() userId: number, @Body() dto: UpdateFileDto) {
+    return await this.filesService.update({ userId, ...dto });
   }
 
   @Delete('softDelete')

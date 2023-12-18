@@ -6,6 +6,8 @@ import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { FileType, SortValue } from './types';
 import { CreateFileDto } from './dto/create-file.dto';
 import { FilesStatistic } from './types/FilesStatistic';
+import { UpdateFileDto } from './dto/update-file.dto';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class FilesService {
@@ -98,6 +100,29 @@ export class FilesService {
     } catch (error) {
       throw new HttpException('Can not save file!', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async update({
+    id,
+    userId,
+    newOriginalName,
+    newFolderId,
+  }: UpdateFileDto & { userId: number }): Promise<boolean> {
+    const partialEntity: QueryDeepPartialEntity<FileEntity> = {};
+    if (newOriginalName) partialEntity.originalname = newOriginalName;
+    if (newFolderId) partialEntity.folder = { id: newFolderId };
+
+    const result = await this.filesRepository.update(
+      {
+        id,
+        owner: { id: userId },
+      },
+      partialEntity,
+    );
+
+    if (result.affected == 0) return false;
+
+    return true;
   }
 
   async softDelete(userId: number, ids: string): Promise<boolean> {
