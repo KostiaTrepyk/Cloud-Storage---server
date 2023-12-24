@@ -8,6 +8,8 @@ import { FileEntity } from './files/entities/file.entity';
 import { AuthModule } from './auth/auth.module';
 import { FoldersModule } from './folders/folders.module';
 import { FolderEntity } from './folders/entities/folder.entity';
+import { StoragesModule } from './storages/storages.module';
+import { StorageEntity } from './storages/entities/storage.entity';
 
 @Module({
   imports: [
@@ -19,11 +21,12 @@ import { FolderEntity } from './folders/entities/folder.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [UserEntity, FileEntity, FolderEntity],
+      entities: [UserEntity, StorageEntity, FolderEntity, FileEntity],
       synchronize: true,
     }),
     AuthModule,
     UsersModule,
+    StoragesModule,
     FoldersModule,
     FilesModule,
   ],

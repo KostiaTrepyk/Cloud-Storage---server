@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { FileEntity } from 'src/files/entities/file.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { StorageEntity } from 'src/storages/entities/storage.entity';
 
 @Entity()
 export class FolderEntity {
@@ -22,10 +23,13 @@ export class FolderEntity {
 
   /* root === 0 */
   @Column()
-  parrentFolderId?: number;
+  parrentFolderId: number;
 
   @OneToMany(() => FileEntity, (file) => file.folder)
   files: FileEntity[];
+
+  @ManyToOne(() => StorageEntity, (storage) => storage.folders)
+  storage: StorageEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.folders, { onDelete: 'CASCADE' })
   owner: UserEntity;

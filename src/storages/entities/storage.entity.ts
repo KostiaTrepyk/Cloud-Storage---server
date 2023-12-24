@@ -1,0 +1,32 @@
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { FileEntity } from 'src/files/entities/file.entity';
+import { FolderEntity } from 'src/folders/entities/folder.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
+
+@Entity({ name: 'storages' })
+export class StorageEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  /** Size is in megabytes */
+  @Column()
+  size: number;
+
+  @OneToMany(() => FolderEntity, (folder) => folder.storage)
+  folders: FolderEntity[];
+
+  @OneToMany(() => FileEntity, (file) => file.storage)
+  files: FileEntity[];
+
+  @ManyToOne(() => UserEntity, (user) => user.storages)
+  owner: UserEntity;
+}

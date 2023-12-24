@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { FolderEntity } from 'src/folders/entities/folder.entity';
+import { StorageEntity } from 'src/storages/entities/storage.entity';
 
 @Entity({ name: 'files' })
 export class FileEntity {
@@ -47,6 +48,9 @@ export class FileEntity {
     onDelete: 'CASCADE',
   })
   folder: FolderEntity;
+
+  @ManyToOne(() => StorageEntity, (storage) => storage.files)
+  storage: StorageEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.files, { onDelete: 'CASCADE' })
   owner: UserEntity;
