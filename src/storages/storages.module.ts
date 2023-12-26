@@ -8,6 +8,6 @@ import { StoragesService } from './storages.service';
   imports: [TypeOrmModule.forFeature([StorageEntity])],
   controllers: [StoragesController],
   providers: [StoragesService],
-  exports: [],
+  exports: [StoragesService],
 })
 export class StoragesModule {}
