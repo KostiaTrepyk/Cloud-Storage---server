@@ -1,20 +1,37 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
-import { FileEntity } from './entities/file.entity';
-import { GetAllFilesQueryDto } from './dto/get-all-files';
-import { FileType, SortValue } from './types';
-import { CreateFileDto } from './dto/create-file.dto';
-import { FilesStatistic } from './types/FilesStatistic';
-import { UpdateFileDto } from './dto/update-file.dto';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { StoragesService } from 'src/storages/storages.service';
+import { FileEntity } from './entities/file.entity';
+import { FileType, SortValue } from './types';
+import { FilesStatistic } from './types/FilesStatistic';
+
+import { GetAllFilesQueryDto } from './dto/get-all-files';
+import { CreateFileDto } from './dto/create-file.dto';
+import { UpdateFileDto } from './dto/update-file.dto';
+import { GetFolderFilesDto } from './dto/get-folder-files.dto';
 
 @Injectable()
 export class FilesService {
   constructor(
     @InjectRepository(FileEntity)
     private filesRepository: Repository<FileEntity>,
+
+    private storagesService: StoragesService,
   ) {}
+
+  async findFolderFiles({
+    userId,
+    folderId,
+  }: GetFolderFilesDto & { userId: number }): Promise<FileEntity[]> {
+    return await this.filesRepository.find({
+      where: {
+        owner: { id: userId },
+        parent: Boolean(folderId) ? { id: folderId } : IsNull(),
+      },
+    });
+  }
 
   async findAll({
     userId,
@@ -49,7 +66,7 @@ export class FilesService {
         /* Search by original name */
         originalname: Boolean(search) && Like(`%${search}%`),
       },
-      relations: { sharedWith: true, owner: true },
+      relations: { sharedWith: true, storage: true, parent: true },
 
       /* Sorting */
       order: {
@@ -73,25 +90,31 @@ export class FilesService {
   async create({
     file,
     userId,
+    storageId,
     folderId,
   }: {
     file: Express.Multer.File;
     userId: number;
   } & CreateFileDto): Promise<FileEntity> {
-    const total = await this.filesRepository.sum('size', {
-      owner: { id: userId },
+    const storageData = await this.storagesService.getStorageData({
+      userId,
+      storageId,
     });
 
-    if ((total + file.size) / 1024 / 1024 > 100) {
-      throw new HttpException('Max storage 100MB', HttpStatus.BAD_REQUEST);
+    if (
+      (storageData.remainingSpace + file.size) / 1024 / 1024 >
+      storageData.storage.size
+    ) {
+      throw new HttpException('Storage space', HttpStatus.BAD_REQUEST);
     }
 
     const createdFile = this.filesRepository.create({
-      folder: { id: folderId },
+      parent: Boolean(folderId) ? { id: folderId } : null,
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,
       mimetype: file.mimetype,
+      storage: { id: storageId },
       owner: { id: userId },
     });
 
@@ -110,7 +133,7 @@ export class FilesService {
   }: UpdateFileDto & { userId: number }): Promise<boolean> {
     const partialEntity: QueryDeepPartialEntity<FileEntity> = {};
     if (newOriginalName) partialEntity.originalname = newOriginalName;
-    if (newFolderId) partialEntity.folder = { id: newFolderId };
+    if (newFolderId) partialEntity.parent = { id: newFolderId };
 
     const result = await this.filesRepository.update(
       {
