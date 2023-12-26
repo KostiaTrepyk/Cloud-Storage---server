@@ -21,16 +21,24 @@ export class FolderEntity {
   @CreateDateColumn()
   createdAt: Date;
 
-  /* root === 0 */
-  @Column()
-  parrentFolderId: number;
+  @OneToMany(() => FolderEntity, (folder) => folder.parent)
+  folders: FolderEntity[]; // Use FolderEntity[] to represent a collection of child folders
 
-  @OneToMany(() => FileEntity, (file) => file.folder)
+  @ManyToOne(() => FolderEntity, (parent) => parent.folders, { nullable: true })
+  parent: FolderEntity; // Reference to the parent folder
+
+  @OneToMany(() => FileEntity, (file) => file.parent)
   files: FileEntity[];
 
-  @ManyToOne(() => StorageEntity, (storage) => storage.folders)
+  @ManyToOne(() => StorageEntity, (storage) => storage.folders, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   storage: StorageEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.folders, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.folders, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   owner: UserEntity;
 }

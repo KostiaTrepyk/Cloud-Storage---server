@@ -45,13 +45,20 @@ export class FileEntity {
   deletedAt?: Date;
 
   @ManyToOne(() => FolderEntity, (folder) => folder.files, {
+    nullable: true,
     onDelete: 'CASCADE',
   })
-  folder: FolderEntity;
+  parent: FolderEntity;
 
-  @ManyToOne(() => StorageEntity, (storage) => storage.files)
+  @ManyToOne(() => StorageEntity, (storage) => storage.files, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   storage: StorageEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.files, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.files, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   owner: UserEntity;
 }

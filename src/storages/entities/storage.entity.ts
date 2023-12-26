@@ -27,6 +27,6 @@ export class StorageEntity {
   @OneToMany(() => FileEntity, (file) => file.storage)
   files: FileEntity[];
 
-  @ManyToOne(() => UserEntity, (user) => user.storages)
+  @ManyToOne(() => UserEntity, (user) => user.storages, { onDelete: 'CASCADE' })
   owner: UserEntity;
 }
