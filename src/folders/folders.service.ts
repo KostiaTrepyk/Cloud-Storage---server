@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Repository } from 'typeorm';
+import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { FolderEntity } from './entities/folder.entity';
 import { type FileEntity } from 'src/files/entities/file.entity';
 
@@ -8,12 +8,14 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class FoldersService {
   constructor(
     @InjectRepository(FolderEntity)
     private foldersRepository: Repository<FolderEntity>,
+    private filesService: FilesService,
   ) {}
 
   async getOneFolder({
@@ -34,24 +36,16 @@ export class FoldersService {
     };
     const foldersFindOptions: FindManyOptions<FolderEntity> = {
       where: {
-        parrentFolderId: folderId,
+        parent: Boolean(folderId) ? { id: folderId } : IsNull(),
         owner: { id: userId },
       },
-    };
-    const filesFindOptions: FindManyOptions<FolderEntity> = {
-      where: {
-        owner: { id: userId },
-        id: folderId,
-      },
-      relations: { files: { sharedWith: true } },
     };
 
     const currentFolder = await this.foldersRepository.findOne(
       currentFolderFindOptions,
     );
     const folders = await this.foldersRepository.find(foldersFindOptions);
-    const files =
-      (await this.foldersRepository.findOne(filesFindOptions))?.files ?? [];
+    const files = await this.filesService.findFolderFiles({ userId, folderId });
 
     return { currentFolder, folders, files };
   }
@@ -59,12 +53,18 @@ export class FoldersService {
   async createFolder({
     userId,
     folderName,
-    parrentFolderId = 0,
+    storageId,
+    parentFolderId = 0,
   }: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
-    return this.foldersRepository.save({
+    const parent = await this.foldersRepository.findOne({
+      where: { id: parentFolderId ?? 0, owner: { id: userId } },
+    });
+
+    return await this.foldersRepository.save({
       name: folderName,
       owner: { id: userId },
-      parrentFolderId,
+      parent,
+      storage: { id: storageId },
     });
   }
 
@@ -72,11 +72,11 @@ export class FoldersService {
     userId,
     folderId,
     newFolderName,
-    newParrentFolderId,
+    newParentFolderId,
   }: UpdateFolderDto & { userId: number }): Promise<boolean> {
     const updateResult = await this.foldersRepository.update(
       { id: folderId, owner: { id: userId } },
-      { name: newFolderName, parrentFolderId: newParrentFolderId },
+      { name: newFolderName, parent: { id: newParentFolderId } },
     );
 
     return Boolean(updateResult.affected);

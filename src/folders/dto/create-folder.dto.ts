@@ -10,5 +10,10 @@ export class CreateFolderDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  parrentFolderId: number;
+  parentFolderId: number;
+
+  @ApiProperty({ required: true })
+  @IsInt()
+  @Min(0)
+  storageId: number;
 }

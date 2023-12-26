@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FilesModule } from 'src/files/files.module';
+import { FolderEntity } from './entities/folder.entity';
 import { FoldersController } from './folders.controller';
 import { FoldersService } from './folders.service';
-import { FolderEntity } from './entities/folder.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FolderEntity])],
+  imports: [TypeOrmModule.forFeature([FolderEntity]), FilesModule],
   controllers: [FoldersController],
   providers: [FoldersService],
 })

@@ -25,5 +25,5 @@ export class UpdateFolderDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  newParrentFolderId: number;
+  newParentFolderId: number;
 }
