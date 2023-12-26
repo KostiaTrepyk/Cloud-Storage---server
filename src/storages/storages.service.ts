@@ -40,10 +40,16 @@ export class StoragesService {
     return createdStorage;
   }
 
-  async updateStorage(
-    dto: UpdateStorageDto & { userId: number },
-  ): Promise<boolean> {
-    return false;
+  async updateStorage({
+    userId,
+    storageId,
+    newName,
+  }: UpdateStorageDto & { userId: number }): Promise<boolean> {
+    const res = await this.storagesRepository.update(
+      { id: storageId, owner: { id: userId } },
+      { name: newName },
+    );
+    return Boolean(res.affected);
   }
 
   async deleteStorage({

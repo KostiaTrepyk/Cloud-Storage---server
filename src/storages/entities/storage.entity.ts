@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -20,6 +21,9 @@ export class StorageEntity {
   /** Size is in megabytes */
   @Column()
   size: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(() => FolderEntity, (folder) => folder.storage)
   folders: FolderEntity[];
