@@ -23,6 +23,7 @@ import { FileEntity } from './entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
+import { GetFolderFilesDto } from './dto/get-folder-files.dto';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -52,6 +53,24 @@ export class FilesController {
     });
   }
 
+  @Get('folderFiles')
+  async findFolderFiles(
+    @UserId() userId: number,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+        forbidNonWhitelisted: true,
+      }),
+    )
+    query: GetFolderFilesDto,
+  ): Promise<FileEntity[]> {
+    return await this.filesService.findFolderFiles({
+      userId,
+      ...query,
+    });
+  }
+
   @Post('save')
   @UseInterceptors(FileInterceptor('file', { storage: fileStorage }))
   @ApiConsumes('multipart/form-data')
@@ -60,13 +79,7 @@ export class FilesController {
   })
   async create(
     @Body() dto: CreateFileDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }) /* 5MB */,
-        ],
-      }),
-    )
+    @UploadedFile(new ParseFilePipe())
     file: Express.Multer.File,
     @UserId() userId: number,
   ): Promise<FileEntity> {

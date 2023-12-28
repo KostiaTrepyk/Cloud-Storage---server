@@ -20,11 +20,26 @@ export class StoragesService {
   }: GetAllStoragesDto & { userId: number }): Promise<StorageEntity[]> {
     const findOptoins: FindManyOptions<StorageEntity> = {
       where: { owner: { id: userId } },
+      relations: { files: true },
     };
 
     const storages = await this.storagesRepository.find(findOptoins);
 
-    return storages;
+    const result = [];
+
+    for (let id = 0; id < storages.length; id++) {
+      const storage = storages[id];
+
+      const totalFilesSize =
+        storage.files.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024;
+      const remainingSpace = storage.size - totalFilesSize;
+
+      const { files, ...rest } = storage;
+
+      result.push({ ...rest, remainingSpace });
+    }
+
+    return result;
   }
 
   async createStorage({
@@ -49,6 +64,7 @@ export class StoragesService {
       { id: storageId, owner: { id: userId } },
       { name: newName },
     );
+
     return Boolean(res.affected);
   }
 

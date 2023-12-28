@@ -24,12 +24,15 @@ export class FilesService {
   async findFolderFiles({
     userId,
     folderId,
+    storageId,
   }: GetFolderFilesDto & { userId: number }): Promise<FileEntity[]> {
     return await this.filesRepository.find({
       where: {
         owner: { id: userId },
+        storage: { id: storageId },
         parent: Boolean(folderId) ? { id: folderId } : IsNull(),
       },
+      relations: { sharedWith: true },
     });
   }
 
@@ -109,7 +112,7 @@ export class FilesService {
     }
 
     const createdFile = this.filesRepository.create({
-      parent: Boolean(folderId) ? { id: folderId } : null,
+      parent: Boolean(Number(folderId)) ? { id: folderId } : null,
       filename: file.filename,
       originalname: file.originalname,
       size: file.size,

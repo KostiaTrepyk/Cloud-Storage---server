@@ -7,4 +7,9 @@ export class GetFolderOneDto {
   @IsInt()
   @Min(0)
   folderId: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @Min(1)
+  storageId: number;
 }

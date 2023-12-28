@@ -24,7 +24,10 @@ export class FolderEntity {
   @OneToMany(() => FolderEntity, (folder) => folder.parent)
   folders: FolderEntity[]; // Use FolderEntity[] to represent a collection of child folders
 
-  @ManyToOne(() => FolderEntity, (parent) => parent.folders, { nullable: true })
+  @ManyToOne(() => FolderEntity, (parent) => parent.folders, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   parent: FolderEntity; // Reference to the parent folder
 
   @OneToMany(() => FileEntity, (file) => file.parent)

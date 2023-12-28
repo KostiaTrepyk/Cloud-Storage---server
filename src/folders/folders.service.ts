@@ -9,6 +9,7 @@ import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
 import { FilesService } from 'src/files/files.service';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class FoldersService {
@@ -21,6 +22,7 @@ export class FoldersService {
   async getOneFolder({
     userId,
     folderId = 0,
+    storageId,
   }: GetFolderOneDto & {
     userId: number;
   }): Promise<{
@@ -31,12 +33,14 @@ export class FoldersService {
     const currentFolderFindOptions: FindManyOptions<FolderEntity> = {
       where: {
         id: folderId,
+        storage: { id: storageId },
         owner: { id: userId },
       },
     };
     const foldersFindOptions: FindManyOptions<FolderEntity> = {
       where: {
         parent: Boolean(folderId) ? { id: folderId } : IsNull(),
+        storage: { id: storageId },
         owner: { id: userId },
       },
     };
@@ -45,7 +49,11 @@ export class FoldersService {
       currentFolderFindOptions,
     );
     const folders = await this.foldersRepository.find(foldersFindOptions);
-    const files = await this.filesService.findFolderFiles({ userId, folderId });
+    const files = await this.filesService.findFolderFiles({
+      userId,
+      folderId,
+      storageId,
+    });
 
     return { currentFolder, folders, files };
   }
@@ -74,9 +82,13 @@ export class FoldersService {
     newFolderName,
     newParentFolderId,
   }: UpdateFolderDto & { userId: number }): Promise<boolean> {
+    const partialEntity: QueryDeepPartialEntity<FolderEntity> = {};
+    if (newFolderName) partialEntity.name = newFolderName;
+    if (newParentFolderId) partialEntity.parent = { id: newParentFolderId };
+
     const updateResult = await this.foldersRepository.update(
       { id: folderId, owner: { id: userId } },
-      { name: newFolderName, parent: { id: newParentFolderId } },
+      partialEntity,
     );
 
     return Boolean(updateResult.affected);
