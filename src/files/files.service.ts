@@ -114,7 +114,7 @@ export class FilesService {
     const createdFile = this.filesRepository.create({
       parent: Boolean(Number(folderId)) ? { id: folderId } : null,
       filename: file.filename,
-      originalname: file.originalname,
+      originalname: file.originalname.split('.').slice(0, -1).join('.'),
       size: file.size,
       mimetype: file.mimetype,
       storage: { id: storageId },
