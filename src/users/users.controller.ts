@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { UserEntity } from './entities/user.entity';
-import { FilesStatistic } from 'src/files/types/FilesStatistic';
+import { FilesStatistic } from 'src/storages/files/types/FilesStatistic';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')

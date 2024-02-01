@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { FileEntity } from '../entities/file.entity';
+import { FileEntity } from '../../entities/file.entity';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { ShareService } from './share.service';
 import { ShareWithDTO } from './dto/shareWith.dto';

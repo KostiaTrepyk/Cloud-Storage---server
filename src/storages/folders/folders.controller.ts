@@ -13,8 +13,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { FoldersService } from './folders.service';
-import { FolderEntity } from './entities/folder.entity';
-import { type FileEntity } from 'src/files/entities/file.entity';
+import { FolderEntity } from '../entities/folder.entity';
+import { type FileEntity } from 'src/storages/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';

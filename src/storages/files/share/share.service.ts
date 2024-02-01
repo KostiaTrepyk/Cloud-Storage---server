@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, In, MoreThan, Repository } from 'typeorm';
-import { FileEntity } from '../entities/file.entity';
+import { FileEntity } from '../../entities/file.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { ShareWithDTO } from './dto/shareWith.dto';
 import { RemoveFromSharedDto } from './dto/removeFromShared.dto';

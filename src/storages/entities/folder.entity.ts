@@ -6,7 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FileEntity } from 'src/files/entities/file.entity';
+import { FileEntity } from 'src/storages/entities/file.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { StorageEntity } from 'src/storages/entities/storage.entity';
 

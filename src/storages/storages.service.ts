@@ -10,95 +10,105 @@ import { type UpdateStorageDto } from './dto/update-storage.dto';
 
 @Injectable()
 export class StoragesService {
-  constructor(
-    @InjectRepository(StorageEntity)
-    private storagesRepository: Repository<StorageEntity>,
-  ) {}
+	constructor(
+		@InjectRepository(StorageEntity)
+		private storagesRepository: Repository<StorageEntity>,
+	) {}
 
-  async getAllStorages({
-    userId,
-  }: GetAllStoragesDto & { userId: number }): Promise<StorageEntity[]> {
-    const findOptoins: FindManyOptions<StorageEntity> = {
-      where: { owner: { id: userId } },
-      relations: { files: true },
-    };
+	async getAllStorages({
+		userId,
+	}: GetAllStoragesDto & { userId: number }): Promise<StorageEntity[]> {
+		const findOptoins: FindManyOptions<StorageEntity> = {
+			where: { owner: { id: userId } },
+			relations: { files: true },
+		};
 
-    const storages = await this.storagesRepository.find(findOptoins);
+		const storages = await this.storagesRepository.find(findOptoins);
 
-    const result = [];
+		const result = [];
 
-    for (let id = 0; id < storages.length; id++) {
-      const storage = storages[id];
+		for (let id = 0; id < storages.length; id++) {
+			const storage = storages[id];
 
-      const totalFilesSize =
-        storage.files.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024;
-      const remainingSpace = storage.size - totalFilesSize;
+			const totalFilesSize =
+				storage.files.reduce((acc, file) => acc + file.size, 0) /
+				1024 /
+				1024;
+			const remainingSpace = storage.size - totalFilesSize;
 
-      const { files, ...rest } = storage;
+			const { files, ...rest } = storage;
 
-      result.push({ ...rest, remainingSpace });
-    }
+			result.push({ ...rest, remainingSpace });
+		}
 
-    return result;
-  }
+		return result;
+	}
 
-  async createStorage({
-    name,
-    userId,
-  }: CreateStorageDto & { userId: number }): Promise<StorageEntity> {
-    const createdStorage = await this.storagesRepository.save({
-      name: name,
-      size: 512,
-      owner: { id: userId },
-    });
+	async createStorage({
+		name,
+		userId,
+	}: CreateStorageDto & { userId: number }): Promise<StorageEntity> {
+		const counts = await this.storagesRepository.count({
+			where: { owner: { id: userId } },
+		});
 
-    return createdStorage;
-  }
+		if (counts >= 2) throw new HttpException('', HttpStatus.FORBIDDEN);
 
-  async updateStorage({
-    userId,
-    storageId,
-    newName,
-  }: UpdateStorageDto & { userId: number }): Promise<boolean> {
-    const res = await this.storagesRepository.update(
-      { id: storageId, owner: { id: userId } },
-      { name: newName },
-    );
+		const createdStorage = await this.storagesRepository.save({
+			name,
+			size: 100,
+			owner: { id: userId },
+		});
 
-    return Boolean(res.affected);
-  }
+		return createdStorage;
+	}
 
-  async deleteStorage({
-    userId,
-    storageId,
-  }: DeleteStorageDto & { userId: number }): Promise<boolean> {
-    const res = await this.storagesRepository.delete({
-      id: storageId,
-      owner: { id: userId },
-    });
+	async updateStorage({
+		userId,
+		storageId,
+		newName,
+	}: UpdateStorageDto & { userId: number }): Promise<boolean> {
+		const res = await this.storagesRepository.update(
+			{ id: storageId, owner: { id: userId } },
+			{ name: newName }
+		);
 
-    return Boolean(res.affected);
-  }
+		return Boolean(res.affected);
+	}
 
-  async getStorageData({
-    userId,
-    storageId,
-  }: {
-    userId: number;
-    storageId: number;
-  }): Promise<{ storage: StorageEntity; remainingSpace: number }> {
-    const storage = await this.storagesRepository.findOne({
-      where: {
-        id: storageId,
-        owner: { id: userId },
-      },
-      relations: { files: true, folders: true },
-    });
+	async deleteStorage({
+		userId,
+		storageId,
+	}: DeleteStorageDto & { userId: number }): Promise<boolean> {
+		const res = await this.storagesRepository.delete({
+			id: storageId,
+			owner: { id: userId },
+		});
 
-    const totalFilesSize =
-      storage.files.reduce((acc, file) => acc + file.size, 0) / 1024 / 1024;
-    const remainingSpace = storage.size - totalFilesSize;
+		return Boolean(res.affected);
+	}
 
-    return { storage, remainingSpace };
-  }
+	async getStorageData({
+		userId,
+		storageId,
+	}: {
+		userId: number;
+		storageId: number;
+	}): Promise<{ storage: StorageEntity; remainingSpace: number }> {
+		const storage = await this.storagesRepository.findOne({
+			where: {
+				id: storageId,
+				owner: { id: userId },
+			},
+			relations: { files: true, folders: true },
+		});
+
+		const totalFilesSize =
+			storage.files.reduce((acc, file) => acc + file.size, 0) /
+			1024 /
+			1024;
+		const remainingSpace = storage.size - totalFilesSize;
+
+		return { storage, remainingSpace };
+	}
 }

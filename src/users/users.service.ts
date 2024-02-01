@@ -13,8 +13,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { StoragesService } from 'src/storages/storages.service';
-import { FilesService } from 'src/files/files.service';
-import { FilesStatistic } from 'src/files/types/FilesStatistic';
+import { FilesService } from 'src/storages/files/files.service';
+import { FilesStatistic } from 'src/storages/files/types/FilesStatistic';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()

@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { FilesModule } from './files/files.module';
+import { FilesModule } from './storages/files/files.module';
 import { UserEntity } from './users/entities/user.entity';
-import { FileEntity } from './files/entities/file.entity';
+import { FileEntity } from './storages/entities/file.entity';
 import { AuthModule } from './auth/auth.module';
-import { FoldersModule } from './folders/folders.module';
-import { FolderEntity } from './folders/entities/folder.entity';
+import { FoldersModule } from './storages/folders/folders.module';
+import { FolderEntity } from './storages/entities/folder.entity';
 import { StoragesModule } from './storages/storages.module';
 import { StorageEntity } from './storages/entities/storage.entity';
 

@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { FolderEntity } from 'src/folders/entities/folder.entity';
+import { FolderEntity } from 'src/storages/entities/folder.entity';
 import { StorageEntity } from 'src/storages/entities/storage.entity';
 
 @Entity({ name: 'files' })

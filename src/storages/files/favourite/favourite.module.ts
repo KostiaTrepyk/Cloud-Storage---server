@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FileEntity } from '../entities/file.entity';
+import { FileEntity } from '../../entities/file.entity';
 import { FavouriteController } from './favourite.controller';
 import { FavouriteService } from './favourite.service';
 
