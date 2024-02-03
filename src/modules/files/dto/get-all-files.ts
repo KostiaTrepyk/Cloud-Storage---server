@@ -8,7 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { FileType, SortValue } from '../types';
+import { FileType, SortValue } from '../types/types';
 
 export class GetAllFilesQueryDto {
   @ApiProperty({ example: FileType.ALL, enum: FileType, required: false })

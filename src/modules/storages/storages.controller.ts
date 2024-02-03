@@ -10,7 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { StoragesService } from './storages.service';
 import { type StorageEntity } from './entities/storage.entity';

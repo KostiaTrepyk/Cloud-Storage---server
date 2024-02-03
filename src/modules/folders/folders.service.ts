@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
-import { FolderEntity } from '../entities/folder.entity';
-import { type FileEntity } from 'src/storages/entities/file.entity';
+import { FolderEntity } from '../storages/entities/folder.entity';
+import { type FileEntity } from 'src/modules/storages/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
-import { FilesService } from 'src/storages/files/files.service';
+import { FilesService } from 'src/modules/files/files.service';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()

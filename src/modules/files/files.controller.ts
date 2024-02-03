@@ -15,11 +15,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
-import { FileEntity } from '../entities/file.entity';
+import { FileEntity } from '../storages/entities/file.entity';
 import { GetAllFilesQueryDto } from './dto/get-all-files';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';

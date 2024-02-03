@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FileEntity } from '../../entities/file.entity';
+import { FileEntity } from '../../../modules/storages/entities/file.entity';
 import { AddToFavouriteDto } from './dto/addToFavourite.dto';
 import { RemoveFromFavouriteDto } from './dto/removeFromFavourite.dto';
 

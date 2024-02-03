@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
-import { FilesModule } from './storages/files/files.module';
-import { UserEntity } from './users/entities/user.entity';
-import { FileEntity } from './storages/entities/file.entity';
-import { AuthModule } from './auth/auth.module';
-import { FoldersModule } from './storages/folders/folders.module';
-import { FolderEntity } from './storages/entities/folder.entity';
-import { StoragesModule } from './storages/storages.module';
-import { StorageEntity } from './storages/entities/storage.entity';
+import { UsersModule } from './modules/users/users.module';
+import { FilesModule } from './modules/files/files.module';
+import { UserEntity } from './modules/users/entities/user.entity';
+import { FileEntity } from './modules/storages/entities/file.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { FoldersModule } from './modules/folders/folders.module';
+import { FolderEntity } from './modules/storages/entities/folder.entity';
+import { StoragesModule } from './modules/storages/storages.module';
+import { StorageEntity } from './modules/storages/entities/storage.entity';
 
 @Module({
   imports: [

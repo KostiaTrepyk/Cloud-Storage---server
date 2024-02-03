@@ -10,11 +10,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { FoldersService } from './folders.service';
-import { FolderEntity } from '../entities/folder.entity';
-import { type FileEntity } from 'src/storages/entities/file.entity';
+import { FolderEntity } from '../storages/entities/folder.entity';
+import { type FileEntity } from 'src/modules/storages/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';

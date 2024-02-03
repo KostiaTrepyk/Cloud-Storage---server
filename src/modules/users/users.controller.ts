@@ -12,11 +12,11 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/decorators/user-id.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { UserEntity } from './entities/user.entity';
-import { FilesStatistic } from 'src/storages/files/types/FilesStatistic';
+import { FilesStatistic } from 'src/modules/files/types/FilesStatistic';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')

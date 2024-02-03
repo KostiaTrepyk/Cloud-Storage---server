@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { FavouriteService } from './favourite.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { AddToFavouriteDto } from './dto/addToFavourite.dto';
 import { RemoveFromFavouriteDto } from './dto/removeFromFavourite.dto';
-import { FileEntity } from '../../entities/file.entity';
+import { FileEntity } from '../../../modules/storages/entities/file.entity';
 import { UserId } from 'src/decorators/user-id.decorator';
 
 @ApiTags('Favourite files')
