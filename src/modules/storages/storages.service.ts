@@ -12,7 +12,7 @@ import { type UpdateStorageDto } from './dto/update-storage.dto';
 export class StoragesService {
 	constructor(
 		@InjectRepository(StorageEntity)
-		private storagesRepository: Repository<StorageEntity>,
+		private storagesRepository: Repository<StorageEntity>
 	) {}
 
 	async getAllStorages({
@@ -56,7 +56,7 @@ export class StoragesService {
 
 		const createdStorage = await this.storagesRepository.save({
 			name,
-			size: 100,
+			size: 100 * 1024 * 1024, // 100 MB
 			owner: { id: userId },
 		});
 
@@ -86,29 +86,5 @@ export class StoragesService {
 		});
 
 		return Boolean(res.affected);
-	}
-
-	async getStorageData({
-		userId,
-		storageId,
-	}: {
-		userId: number;
-		storageId: number;
-	}): Promise<{ storage: StorageEntity; remainingSpace: number }> {
-		const storage = await this.storagesRepository.findOne({
-			where: {
-				id: storageId,
-				owner: { id: userId },
-			},
-			relations: { files: true, folders: true },
-		});
-
-		const totalFilesSize =
-			storage.files.reduce((acc, file) => acc + file.size, 0) /
-			1024 /
-			1024;
-		const remainingSpace = storage.size - totalFilesSize;
-
-		return { storage, remainingSpace };
 	}
 }
