@@ -6,11 +6,12 @@ import { ShareModule } from '../../storages/files/share/share.module';
 import { FileEntity } from '../storages/entities/file.entity';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
+import { StorageHelpersModule } from '../storages/helpers/storages.helper.module';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([FileEntity]),
-		StoragesModule,
+		StorageHelpersModule,
 		FavouriteModule,
 		ShareModule,
 	],

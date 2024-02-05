@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { StoragesService } from 'src/modules/storages/storages.service';
 import { FileEntity } from '../storages/entities/file.entity';
 import { FileType, SortValue } from './types/types';
 import { FilesStatistic } from './types/FilesStatistic';
@@ -18,8 +17,6 @@ export class FilesService {
 	constructor(
 		@InjectRepository(FileEntity)
 		private filesRepository: Repository<FileEntity>,
-
-		private storagesService: StoragesService,
 		private storagesHelper: StoragesHelper
 	) {}
 
@@ -135,16 +132,15 @@ export class FilesService {
 		userId,
 		newOriginalName,
 		newFolderId,
+		isFavourite,
 	}: UpdateFileDto & { userId: number }): Promise<boolean> {
 		const partialEntity: QueryDeepPartialEntity<FileEntity> = {};
 		if (newOriginalName) partialEntity.originalname = newOriginalName;
 		if (newFolderId) partialEntity.parent = { id: newFolderId };
+		if (isFavourite) partialEntity.isFavourite = isFavourite;
 
 		const result = await this.filesRepository.update(
-			{
-				id,
-				owner: { id: userId },
-			},
+			{ id, owner: { id: userId } },
 			partialEntity
 		);
 
