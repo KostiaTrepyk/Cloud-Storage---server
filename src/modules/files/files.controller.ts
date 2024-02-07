@@ -5,7 +5,6 @@ import {
 	UseInterceptors,
 	UploadedFile,
 	ParseFilePipe,
-	MaxFileSizeValidator,
 	UseGuards,
 	Query,
 	Delete,

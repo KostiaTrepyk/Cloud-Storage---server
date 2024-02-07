@@ -45,16 +45,15 @@ export class FoldersService {
 			},
 			relations: { sharedWith: true },
 		};
-
-		const currentFolder = await this.foldersRepository.findOne(
-			currentFolderFindOptions
-		);
-		const folders = await this.foldersRepository.find(foldersFindOptions);
-		const files = await this.filesService.findFolderFiles({
-			userId,
-			folderId,
-			storageId,
-		});
+		const [currentFolder, folders, files] = await Promise.all([
+			await this.foldersRepository.findOne(currentFolderFindOptions),
+			await this.foldersRepository.find(foldersFindOptions),
+			await this.filesService.findFolderFiles({
+				userId,
+				folderId,
+				storageId,
+			}),
+		]);
 
 		return { currentFolder, folders, files };
 	}

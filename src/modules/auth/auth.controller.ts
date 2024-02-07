@@ -1,30 +1,31 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { UserEntity } from 'src/entities/user.entity';
 import { LocalAuthGuard } from './guards/local.guard';
+
 import { LoginDto } from './dto/login.dto';
+import { RegistrationDto } from './dto/registration.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+	constructor(private authService: AuthService) {}
 
-  /* FIX Types */
-  @ApiBody({ type: LoginDto })
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  async loign(@Request() req): Promise<{
-    token: string;
-  }> {
-    return await this.authService.login(req.user as UserEntity);
-  }
+	/* FIX Types */
+	@ApiBody({ type: LoginDto })
+	@UseGuards(LocalAuthGuard)
+	@Post('login')
+	async loign(@Request() req): Promise<{
+		token: string;
+	}> {
+		return await this.authService.login(req.user as UserEntity);
+	}
 
-  @Post('registration')
-  async registration(@Body() dto: CreateUserDto): Promise<{
-    token: string;
-  }> {
-    return await this.authService.register(dto);
-  }
+	@Post('registration')
+	async registration(@Body() dto: RegistrationDto): Promise<{
+		token: string;
+	}> {
+		return await this.authService.register(dto);
+	}
 }

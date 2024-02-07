@@ -25,13 +25,20 @@ export class UsersService {
 		private storagesService: StoragesService,
 		private filesService: FilesService
 	) {}
+	/** Fix me */
 	async findByEmail(
 		email: string,
 		select?: FindOptionsSelect<UserEntity>
 	): Promise<UserEntity> {
 		return await this.usersRepository.findOne({
 			where: { email },
-			select,
+			select: {
+				id: true,
+				fullName: true,
+				email: true,
+				createdAt: true,
+				...select,
+			},
 		});
 	}
 
