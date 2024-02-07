@@ -13,96 +13,97 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 
 @Injectable()
 export class FoldersService {
-  constructor(
-    @InjectRepository(FolderEntity)
-    private foldersRepository: Repository<FolderEntity>,
-    private filesService: FilesService,
-  ) {}
+	constructor(
+		@InjectRepository(FolderEntity)
+		private foldersRepository: Repository<FolderEntity>,
+		private filesService: FilesService
+	) {}
 
-  async getOneFolder({
-    userId,
-    folderId = 0,
-    storageId,
-  }: GetFolderOneDto & {
-    userId: number;
-  }): Promise<{
-    currentFolder: FolderEntity;
-    folders: FolderEntity[];
-    files: FileEntity[];
-  }> {
-    const currentFolderFindOptions: FindManyOptions<FolderEntity> = {
-      where: {
-        id: folderId,
-        storage: { id: storageId },
-        owner: { id: userId },
-      },
-    };
-    const foldersFindOptions: FindManyOptions<FolderEntity> = {
-      where: {
-        parent: Boolean(folderId) ? { id: folderId } : IsNull(),
-        storage: { id: storageId },
-        owner: { id: userId },
-      },
-    };
+	async getOneFolder({
+		userId,
+		folderId = 0,
+		storageId,
+	}: GetFolderOneDto & {
+		userId: number;
+	}): Promise<{
+		currentFolder: FolderEntity;
+		folders: FolderEntity[];
+		files: FileEntity[];
+	}> {
+		const currentFolderFindOptions: FindManyOptions<FolderEntity> = {
+			where: {
+				id: folderId,
+				storage: { id: storageId },
+				owner: { id: userId },
+			},
+		};
+		const foldersFindOptions: FindManyOptions<FolderEntity> = {
+			where: {
+				parent: Boolean(folderId) ? { id: folderId } : IsNull(),
+				storage: { id: storageId },
+				owner: { id: userId },
+			},
+			relations: { sharedWith: true },
+		};
 
-    const currentFolder = await this.foldersRepository.findOne(
-      currentFolderFindOptions,
-    );
-    const folders = await this.foldersRepository.find(foldersFindOptions);
-    const files = await this.filesService.findFolderFiles({
-      userId,
-      folderId,
-      storageId,
-    });
+		const currentFolder = await this.foldersRepository.findOne(
+			currentFolderFindOptions
+		);
+		const folders = await this.foldersRepository.find(foldersFindOptions);
+		const files = await this.filesService.findFolderFiles({
+			userId,
+			folderId,
+			storageId,
+		});
 
-    return { currentFolder, folders, files };
-  }
+		return { currentFolder, folders, files };
+	}
 
-  async createFolder({
-    userId,
-    folderName,
-    storageId,
-    parentFolderId = 0,
-  }: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
-    const parent = await this.foldersRepository.findOne({
-      where: { id: parentFolderId ?? 0, owner: { id: userId } },
-    });
+	async createFolder({
+		userId,
+		folderName,
+		storageId,
+		parentFolderId = 0,
+	}: CreateFolderDto & { userId: number }): Promise<FolderEntity> {
+		const parent = await this.foldersRepository.findOne({
+			where: { id: parentFolderId ?? 0, owner: { id: userId } },
+		});
 
-    return await this.foldersRepository.save({
-      name: folderName,
-      owner: { id: userId },
-      parent,
-      storage: { id: storageId },
-    });
-  }
+		return await this.foldersRepository.save({
+			name: folderName,
+			owner: { id: userId },
+			parent,
+			storage: { id: storageId },
+		});
+	}
 
-  async updateFolder({
-    userId,
-    folderId,
-    newFolderName,
-    newParentFolderId,
-  }: UpdateFolderDto & { userId: number }): Promise<boolean> {
-    const partialEntity: QueryDeepPartialEntity<FolderEntity> = {};
-    if (newFolderName) partialEntity.name = newFolderName;
-    if (newParentFolderId) partialEntity.parent = { id: newParentFolderId };
+	async updateFolder({
+		userId,
+		folderId,
+		newFolderName,
+		newParentFolderId,
+	}: UpdateFolderDto & { userId: number }): Promise<boolean> {
+		const partialEntity: QueryDeepPartialEntity<FolderEntity> = {};
+		if (newFolderName) partialEntity.name = newFolderName;
+		if (newParentFolderId) partialEntity.parent = { id: newParentFolderId };
 
-    const updateResult = await this.foldersRepository.update(
-      { id: folderId, owner: { id: userId } },
-      partialEntity,
-    );
+		const updateResult = await this.foldersRepository.update(
+			{ id: folderId, owner: { id: userId } },
+			partialEntity
+		);
 
-    return Boolean(updateResult.affected);
-  }
+		return Boolean(updateResult.affected);
+	}
 
-  async deleteFolders({
-    userId,
-    foldersIds,
-  }: DeleteFoldersDto & { userId: number }): Promise<boolean> {
-    const deleteResult = await this.foldersRepository.delete({
-      owner: { id: userId },
-      id: In(foldersIds),
-    });
+	async deleteFolders({
+		userId,
+		foldersIds,
+	}: DeleteFoldersDto & { userId: number }): Promise<boolean> {
+		const deleteResult = await this.foldersRepository.delete({
+			owner: { id: userId },
+			id: In(foldersIds),
+		});
 
-    return Boolean(deleteResult.affected);
-  }
+		return Boolean(deleteResult.affected);
+	}
 }
