@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FoldersModule } from './modules/folders/folders.module';
 import { StoragesModule } from './modules/storages/storages.module';
 import { DatabaseConfig } from './configs/database.config';
+import { ShareModule } from './modules/share/share.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { DatabaseConfig } from './configs/database.config';
 		StoragesModule,
 		FoldersModule,
 		FilesModule,
+		ShareModule,
 	],
 	controllers: [],
 	providers: [DatabaseConfig],

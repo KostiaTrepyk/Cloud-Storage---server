@@ -2,7 +2,7 @@ import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserEntity } from 'src/entities/user.entity';
 import { LocalAuthGuard } from './guards/local.guard';
 import { LoginDto } from './dto/login.dto';
 

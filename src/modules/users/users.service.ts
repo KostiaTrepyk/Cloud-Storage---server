@@ -10,7 +10,7 @@ import {
 	Repository,
 } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserEntity } from './entities/user.entity';
+import { UserEntity } from '../../entities/user.entity';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
 import { StoragesService } from 'src/modules/storages/storages.service';
 import { FilesService } from 'src/modules/files/files.service';

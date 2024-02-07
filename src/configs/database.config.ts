@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
-import { FileEntity } from "src/modules/storages/entities/file.entity";
-import { FolderEntity } from 'src/modules/storages/entities/folder.entity';
-import { StorageEntity } from 'src/modules/storages/entities/storage.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { FileEntity } from "src/entities/file.entity";
+import { FolderEntity } from 'src/entities/folder.entity';
+import { StorageEntity } from 'src/entities/storage.entity';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class DatabaseConfig implements TypeOrmOptionsFactory {

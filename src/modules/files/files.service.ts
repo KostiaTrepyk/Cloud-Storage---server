@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { FileEntity } from '../storages/entities/file.entity';
+import { FileEntity } from '../../entities/file.entity';
 import { FileType, SortValue } from './types/types';
 import { FilesStatistic } from './types/FilesStatistic';
 

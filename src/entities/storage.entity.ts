@@ -6,9 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FileEntity } from 'src/modules/storages/entities/file.entity';
-import { FolderEntity } from 'src/modules/storages/entities/folder.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { FileEntity } from 'src/entities/file.entity';
+import { FolderEntity } from 'src/entities/folder.entity';
+import { UserEntity } from 'src/entities/user.entity';
 
 @Entity({ name: 'storages' })
 export class StorageEntity {

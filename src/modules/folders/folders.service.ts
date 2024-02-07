@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
-import { FolderEntity } from '../storages/entities/folder.entity';
-import { type FileEntity } from 'src/modules/storages/entities/file.entity';
+import { FolderEntity } from '../../entities/folder.entity';
+import { type FileEntity } from 'src/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { type FindManyOptions, type Repository } from 'typeorm';
-import { StorageEntity } from './entities/storage.entity';
+import { StorageEntity } from '../../entities/storage.entity';
 
 import { type CreateStorageDto } from './dto/create-storage.dto';
 import { type DeleteStorageDto } from './dto/delete-storage.dto';

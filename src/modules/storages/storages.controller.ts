@@ -13,7 +13,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { StoragesService } from './storages.service';
-import { type StorageEntity } from './entities/storage.entity';
+import { type StorageEntity } from '../../entities/storage.entity';
 
 import { CreateStorageDto } from './dto/create-storage.dto';
 import { DeleteStorageDto } from './dto/delete-storage.dto';

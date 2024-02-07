@@ -8,9 +8,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
-import { FolderEntity } from 'src/modules/storages/entities/folder.entity';
-import { StorageEntity } from 'src/modules/storages/entities/storage.entity';
+import { UserEntity } from 'src/entities/user.entity';
+import { FolderEntity } from 'src/entities/folder.entity';
+import { StorageEntity } from 'src/entities/storage.entity';
 
 @Entity({ name: 'files' })
 export class FileEntity {
