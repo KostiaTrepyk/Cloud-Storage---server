@@ -11,7 +11,7 @@ import {
 	ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserId } from 'src/decorators/user-id.decorator';
+import { User, UserType } from 'src/decorators/user.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
 import { UsersService } from './users.service';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
@@ -28,11 +28,9 @@ export class UsersController {
 
 	@Get('me')
 	async getUserData(
-		@UserId() userId: number
+		@User() user: UserType
 	): Promise<{ user: UserEntity; statistic: FilesStatistic }> {
-		const response = await this.usersService.getUserDataWithStatistic(
-			userId
-		);
+		const response = await this.usersService.getUserDataWithStatistic(user);
 
 		if (!response.user || !response.statistic)
 			throw new HttpException(
@@ -45,7 +43,7 @@ export class UsersController {
 
 	@Get('allUsers')
 	async getAllUsers(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Query(
 			new ValidationPipe({
 				transform: true,
@@ -53,24 +51,24 @@ export class UsersController {
 				forbidNonWhitelisted: true,
 			})
 		)
-		query?: GetAllUsersDto
+		dto: GetAllUsersDto
 	): Promise<{
 		count: number;
 		users: UserEntity[];
 	}> {
-		return await this.usersService.getAllUsers({ ...query, userId });
+		return await this.usersService.getAllUsers(user, dto);
 	}
 
 	@Put('update')
 	async updateUser(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Body() dto: UpdateUserDto
 	): Promise<boolean> {
-		return await this.usersService.updateUser({ userId, ...dto });
+		return await this.usersService.updateUser(user, dto);
 	}
 
 	@Delete('delete')
-	async deleteUser(@UserId() userId: number): Promise<boolean> {
-		return await this.usersService.deleteUser(userId);
+	async deleteUser(@User() user: UserType): Promise<boolean> {
+		return await this.usersService.deleteUser(user);
 	}
 }

@@ -15,7 +15,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
-import { UserId } from 'src/decorators/user-id.decorator';
+import { User, UserType } from 'src/decorators/user.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from '../../entities/file.entity';
@@ -33,7 +33,7 @@ export class FilesController {
 
 	@Get('all')
 	async findAll(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Query(
 			new ValidationPipe({
 				transform: true,
@@ -41,20 +41,17 @@ export class FilesController {
 				forbidNonWhitelisted: true,
 			})
 		)
-		query: GetAllFilesQueryDto
+		dto: GetAllFilesQueryDto
 	): Promise<{
 		files: FileEntity[];
 		count: number;
 	}> {
-		return await this.filesService.findAll({
-			userId,
-			...query,
-		});
+		return await this.filesService.findAll(user, dto);
 	}
 
 	@Get('folderFiles')
 	async findFolderFiles(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Query(
 			new ValidationPipe({
 				transform: true,
@@ -62,12 +59,9 @@ export class FilesController {
 				forbidNonWhitelisted: true,
 			})
 		)
-		query: GetFolderFilesDto
+		dto: GetFolderFilesDto
 	): Promise<FileEntity[]> {
-		return await this.filesService.findFolderFiles({
-			userId,
-			...query,
-		});
+		return await this.filesService.findFolderFiles(user, dto);
 	}
 
 	@Post('save')
@@ -80,29 +74,29 @@ export class FilesController {
 		@Body() dto: CreateFileDto,
 		@UploadedFile(new ParseFilePipe())
 		file: Express.Multer.File,
-		@UserId() userId: number
+		@User() user: UserType
 	): Promise<FileEntity> {
-		return await this.filesService.create({ file, userId, ...dto });
+		return await this.filesService.create(user, { file, ...dto });
 	}
 
 	@Put()
-	async update(@UserId() userId: number, @Body() dto: UpdateFileDto) {
-		return await this.filesService.update({ userId, ...dto });
+	async update(@User() user: UserType, @Body() dto: UpdateFileDto) {
+		return await this.filesService.update(user, dto);
 	}
 
 	@Delete('softDelete')
 	async softDelete(
-		@UserId() userId: number,
-		@Query('ids') ids: string
+		@User() user: UserType,
+		@Query('ids') dto: string
 	): Promise<boolean> {
-		return await this.filesService.softDelete(userId, ids);
+		return await this.filesService.softDelete(user, dto);
 	}
 
 	@Delete('delete')
 	async delete(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Query('ids') ids: string
 	): Promise<boolean> {
-		return await this.filesService.delete(userId, ids);
+		return await this.filesService.delete(user, ids);
 	}
 }

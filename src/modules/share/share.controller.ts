@@ -2,11 +2,11 @@ import { Body, Controller, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ShareService } from './share.service';
 import { ShareFilesDto } from './dtos/share-files.dto';
-import { UserId } from 'src/decorators/user-id.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { UnshareFilesDto } from './dtos/unshare-fIles.dto';
 import { ShareFoldersDto } from './dtos/share-folder.dto';
 import { UnshareFoldersDto } from './dtos/unshare-folder.dto';
+import { User, UserType } from 'src/decorators/user.decorator';
 
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -16,25 +16,25 @@ export class ShareController {
 	constructor(private shareService: ShareService) {}
 
 	@Put('shareFiles')
-	async shareFiles(@UserId() userId: number, @Body() dto: ShareFilesDto) {
-		return await this.shareService.shareFiles(userId, dto);
+	async shareFiles(@User() user: UserType, @Body() dto: ShareFilesDto) {
+		return await this.shareService.shareFiles(user, dto);
 	}
 
 	@Put('unshareFiles')
-	async unshareFiles(@UserId() userId: number, @Body() dto: UnshareFilesDto) {
-		return await this.shareService.unshareFiles(userId, dto);
+	async unshareFiles(@User() user: UserType, @Body() dto: UnshareFilesDto) {
+		return await this.shareService.unshareFiles(user, dto);
 	}
 
 	@Put('shareFolders')
-	async shareFolders(@UserId() userId: number, @Body() dto: ShareFoldersDto) {
-		return await this.shareService.shareFolders(userId, dto);
+	async shareFolders(@User() user: UserType, @Body() dto: ShareFoldersDto) {
+		return await this.shareService.shareFolders(user, dto);
 	}
 
 	@Put('unshareFolders')
 	async unshareFolders(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Body() dto: UnshareFoldersDto
 	) {
-		return await this.shareService.unshareFolders(userId, dto);
+		return await this.shareService.unshareFolders(user, dto);
 	}
 }

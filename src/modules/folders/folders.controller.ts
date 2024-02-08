@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
-import { UserId } from 'src/decorators/user-id.decorator';
 import { FoldersService } from './folders.service';
 import { FolderEntity } from '../../entities/folder.entity';
 import { type FileEntity } from 'src/entities/file.entity';
@@ -20,6 +19,7 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
+import { User, UserType } from 'src/decorators/user.decorator';
 
 @ApiTags('Folders')
 @ApiBearerAuth()
@@ -30,7 +30,7 @@ export class FoldersController {
 
   @Get('one')
   async getFolder(
-    @UserId() userId: number,
+    @User() user: UserType,
     @Query(
       new ValidationPipe({
         transform: true,
@@ -44,30 +44,30 @@ export class FoldersController {
     folders: FolderEntity[];
     files: FileEntity[];
   }> {
-    return await this.foldersService.getOneFolder({ userId, ...dto });
+    return await this.foldersService.getOneFolder(user, dto);
   }
 
   @Post()
   async createFolder(
-    @UserId() userId: number,
+    @User() user: UserType,
     @Body() dto: CreateFolderDto,
   ): Promise<FolderEntity> {
-    return await this.foldersService.createFolder({ userId, ...dto });
+    return await this.foldersService.createFolder(user, dto);
   }
 
   @Put()
   async updateFolder(
-    @UserId() userId: number,
+    @User() user: UserType,
     @Body() dto: UpdateFolderDto,
   ): Promise<boolean> {
-    return await this.foldersService.updateFolder({ userId, ...dto });
+    return await this.foldersService.updateFolder(user, dto);
   }
 
   @Delete()
   async deleteFolders(
-    @UserId() userId: number,
+    @User() user: UserType,
     @Body() dto: DeleteFoldersDto,
   ): Promise<boolean> {
-    return await this.foldersService.deleteFolders({ userId, ...dto });
+    return await this.foldersService.deleteFolders(user, dto);
   }
 }

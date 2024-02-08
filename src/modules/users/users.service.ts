@@ -12,17 +12,16 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from '../../entities/user.entity';
 import { GetAllUsersDto } from './dto/get-all-users.dto';
-import { StoragesService } from 'src/modules/storages/storages.service';
 import { FilesService } from 'src/modules/files/files.service';
 import { FilesStatistic } from 'src/modules/files/types/FilesStatistic';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserType } from 'src/decorators/user.decorator';
 
 @Injectable()
 export class UsersService {
 	constructor(
 		@InjectRepository(UserEntity)
 		private usersRepository: Repository<UserEntity>,
-		private storagesService: StoragesService,
 		private filesService: FilesService
 	) {}
 	/** Fix me */
@@ -53,22 +52,24 @@ export class UsersService {
 	}
 
 	async getUserDataWithStatistic(
-		userId: number
+		user: UserType
 	): Promise<{ user: UserEntity; statistic: FilesStatistic }> {
 		return {
-			user: await this.getUserData(userId),
-			statistic: await this.filesService.getStatistic(userId),
+			user: await this.getUserData(user.id),
+			statistic: await this.filesService.getStatistic(user),
 		};
 	}
 
-	async getAllUsers({
-		userId,
-		offset = 0,
-		limit = 15,
-		searchByEmail = '',
-		orderBy,
-		orderValue,
-	}: GetAllUsersDto & { userId: number }): Promise<{
+	async getAllUsers(
+		user: UserType,
+		{
+			offset = 0,
+			limit = 15,
+			searchByEmail = '',
+			orderBy,
+			orderValue,
+		}: GetAllUsersDto
+	): Promise<{
 		count: number;
 		users: UserEntity[];
 	}> {
@@ -82,7 +83,7 @@ export class UsersService {
 
 		const findOptions: FindManyOptions<UserEntity> = {
 			where: {
-				id: Not(userId),
+				id: Not(user.id),
 				email: Boolean(searchByEmail) && Like(searchByEmail),
 			},
 			relations: { sharedFiles: true },
@@ -107,21 +108,15 @@ export class UsersService {
 			password: hashedPassword,
 		});
 
-		const storage = await this.storagesService.createStorage({
-			name: 'Storage',
-			userId: user.id,
-		});
-
 		return user;
 	}
 
-	async updateUser({
-		userId,
-		newEmail,
-		newFullName,
-	}: UpdateUserDto & { userId: number }): Promise<boolean> {
+	async updateUser(
+		user: UserType,
+		{ newEmail, newFullName }: UpdateUserDto
+	): Promise<boolean> {
 		const updateResult = await this.usersRepository.update(
-			{ id: userId },
+			{ id: user.id },
 			{ email: newEmail, fullName: newFullName }
 		);
 
@@ -129,8 +124,8 @@ export class UsersService {
 		return true;
 	}
 
-	async deleteUser(userId: number) {
-		const deleteResult = await this.usersRepository.delete({ id: userId });
+	async deleteUser(user: UserType) {
+		const deleteResult = await this.usersRepository.delete({ id: user.id });
 
 		if (deleteResult.affected === 0) return false;
 

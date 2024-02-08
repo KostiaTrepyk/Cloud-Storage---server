@@ -7,6 +7,7 @@ import { type CreateStorageDto } from './dto/create-storage.dto';
 import { type DeleteStorageDto } from './dto/delete-storage.dto';
 import { type GetAllStoragesDto } from './dto/get-all-storages.dto';
 import { type UpdateStorageDto } from './dto/update-storage.dto';
+import { UserType } from 'src/decorators/user.decorator';
 
 @Injectable()
 export class StoragesService {
@@ -15,11 +16,12 @@ export class StoragesService {
 		private storagesRepository: Repository<StorageEntity>
 	) {}
 
-	async getAllStorages({
-		userId,
-	}: GetAllStoragesDto & { userId: number }): Promise<StorageEntity[]> {
+	async getAllStorages(
+		user: UserType,
+		dto: GetAllStoragesDto
+	): Promise<StorageEntity[]> {
 		const findOptoins: FindManyOptions<StorageEntity> = {
-			where: { owner: { id: userId } },
+			where: { owner: { id: user.id } },
 			relations: { files: true },
 		};
 
@@ -44,12 +46,12 @@ export class StoragesService {
 		return result;
 	}
 
-	async createStorage({
-		name,
-		userId,
-	}: CreateStorageDto & { userId: number }): Promise<StorageEntity> {
+	async createStorage(
+		user: UserType,
+		{ name }: CreateStorageDto
+	): Promise<StorageEntity> {
 		const counts = await this.storagesRepository.count({
-			where: { owner: { id: userId } },
+			where: { owner: { id: user.id } },
 		});
 
 		if (counts >= 2) throw new HttpException('', HttpStatus.FORBIDDEN);
@@ -57,32 +59,31 @@ export class StoragesService {
 		const createdStorage = await this.storagesRepository.save({
 			name,
 			size: 100 * 1024 * 1024, // 100 MB
-			owner: { id: userId },
+			owner: { id: user.id },
 		});
 
 		return createdStorage;
 	}
 
-	async updateStorage({
-		userId,
-		storageId,
-		newName,
-	}: UpdateStorageDto & { userId: number }): Promise<boolean> {
+	async updateStorage(
+		user: UserType,
+		{ storageId, newName }: UpdateStorageDto
+	): Promise<boolean> {
 		const res = await this.storagesRepository.update(
-			{ id: storageId, owner: { id: userId } },
+			{ id: storageId, owner: { id: user.id } },
 			{ name: newName }
 		);
 
 		return Boolean(res.affected);
 	}
 
-	async deleteStorage({
-		userId,
-		storageId,
-	}: DeleteStorageDto & { userId: number }): Promise<boolean> {
+	async deleteStorage(
+		user: UserType,
+		{ storageId }: DeleteStorageDto
+	): Promise<boolean> {
 		const res = await this.storagesRepository.delete({
 			id: storageId,
-			owner: { id: userId },
+			owner: { id: user.id },
 		});
 
 		return Boolean(res.affected);

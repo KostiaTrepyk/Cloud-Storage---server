@@ -1,11 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { UserEntity } from 'src/entities/user.entity';
 import { LocalAuthGuard } from './guards/local.guard';
 
 import { LoginDto } from './dto/login.dto';
 import { RegistrationDto } from './dto/registration.dto';
+import { User, UserType } from 'src/decorators/user.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,10 +16,10 @@ export class AuthController {
 	@ApiBody({ type: LoginDto })
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
-	async loign(@Request() req): Promise<{
+	async loign(@User() user: UserType): Promise<{
 		token: string;
 	}> {
-		return await this.authService.login(req.user as UserEntity);
+		return await this.authService.login(user);
 	}
 
 	@Post('registration')

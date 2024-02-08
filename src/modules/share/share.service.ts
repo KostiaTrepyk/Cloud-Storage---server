@@ -8,6 +8,7 @@ import { UnshareFilesDto } from './dtos/unshare-fIles.dto';
 import { ShareFilesDto } from './dtos/share-files.dto';
 import { UnshareFoldersDto } from './dtos/unshare-folder.dto';
 import { ShareFoldersDto } from './dtos/share-folder.dto';
+import { UserType } from 'src/decorators/user.decorator';
 
 @Injectable()
 export class ShareService {
@@ -21,11 +22,11 @@ export class ShareService {
 	) {}
 
 	async shareFiles(
-		userId: number,
+		user: UserType,
 		{ fileIds, userIdsToShareWith }: ShareFilesDto
 	): Promise<{ sharedWith: number[] }> {
 		const filesToShare = await this.filesRepository.find({
-			where: { id: In(fileIds), owner: { id: userId } },
+			where: { id: In(fileIds), owner: { id: user.id } },
 			relations: { sharedWith: true },
 		});
 
@@ -49,11 +50,11 @@ export class ShareService {
 	}
 
 	async unshareFiles(
-		userId: number,
+		user: UserType,
 		{ fileIds, userIdsToRemove }: UnshareFilesDto
 	): Promise<boolean> {
 		const filesToUnshare = await this.filesRepository.find({
-			where: { id: In(fileIds), owner: { id: userId } },
+			where: { id: In(fileIds), owner: { id: user.id } },
 			relations: { sharedWith: true },
 		});
 		const usersToUnshare = await this.usersRepository.find({
@@ -77,11 +78,11 @@ export class ShareService {
 	}
 
 	async shareFolders(
-		userId: number,
+		user: UserType,
 		{ folderIds, userIdsToShareWith }: ShareFoldersDto
 	): Promise<{ sharedWith: number[] }> {
 		const fodlersToShare = await this.foldersRepository.find({
-			where: { id: In(folderIds), owner: { id: userId } },
+			where: { id: In(folderIds), owner: { id: user.id } },
 			relations: { sharedWith: true },
 		});
 
@@ -105,11 +106,11 @@ export class ShareService {
 	}
 
 	async unshareFolders(
-		userId: number,
+		user: UserType,
 		{ folderIds, userIdsToRemove }: UnshareFoldersDto
 	): Promise<boolean> {
 		const foldersToUnshare = await this.foldersRepository.find({
-			where: { id: In(folderIds), owner: { id: userId } },
+			where: { id: In(folderIds), owner: { id: user.id } },
 			relations: { sharedWith: true },
 		});
 		const usersToUnshare = await this.usersRepository.find({

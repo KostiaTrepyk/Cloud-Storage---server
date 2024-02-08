@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt.guard';
-import { UserId } from 'src/decorators/user-id.decorator';
+import { User, UserType } from 'src/decorators/user.decorator';
 import { StoragesService } from './storages.service';
 import { type StorageEntity } from '../../entities/storage.entity';
 
@@ -29,7 +29,7 @@ export class StoragesController {
 
 	@Get('all')
 	async getAllStorages(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Query(
 			new ValidationPipe({
 				transform: true,
@@ -39,30 +39,30 @@ export class StoragesController {
 		)
 		dto: GetAllStoragesDto
 	): Promise<StorageEntity[]> {
-		return await this.storagesService.getAllStorages({ userId, ...dto });
+		return await this.storagesService.getAllStorages(user, dto);
 	}
 
 	@Post('create')
 	async createStorage(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Body() dto: CreateStorageDto
 	): Promise<StorageEntity> {
-		return await this.storagesService.createStorage({ userId, ...dto });
+		return await this.storagesService.createStorage(user, dto);
 	}
 
 	@Put('update')
 	async updateStorage(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Body() dto: UpdateStorageDto
 	): Promise<boolean> {
-		return await this.storagesService.updateStorage({ userId, ...dto });
+		return await this.storagesService.updateStorage(user, dto);
 	}
 
 	@Delete('delete')
 	async deleteStorage(
-		@UserId() userId: number,
+		@User() user: UserType,
 		@Body() dto: DeleteStorageDto
 	): Promise<boolean> {
-		return await this.storagesService.deleteStorage({ userId, ...dto });
+		return await this.storagesService.deleteStorage(user, dto);
 	}
 }

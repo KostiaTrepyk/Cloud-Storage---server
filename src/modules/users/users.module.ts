@@ -4,12 +4,11 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { UserEntity } from '../../entities/user.entity';
 import { FilesModule } from 'src/modules/files/files.module';
-import { StoragesModule } from 'src/modules/storages/storages.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), StoragesModule, FilesModule],
-  controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService],
+	imports: [TypeOrmModule.forFeature([UserEntity]), FilesModule],
+	controllers: [UsersController],
+	providers: [UsersService],
+	exports: [UsersService],
 })
 export class UsersModule {}

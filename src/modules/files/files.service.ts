@@ -11,6 +11,7 @@ import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { GetFolderFilesDto } from './dto/get-folder-files.dto';
 import { StoragesHelper } from 'src/modules/storages/helpers/storages.helper';
+import { UserType } from 'src/decorators/user.decorator';
 
 @Injectable()
 export class FilesService {
@@ -20,14 +21,13 @@ export class FilesService {
 		private storagesHelper: StoragesHelper
 	) {}
 
-	async findFolderFiles({
-		userId,
-		folderId,
-		storageId,
-	}: GetFolderFilesDto & { userId: number }): Promise<FileEntity[]> {
+	async findFolderFiles(
+		user: UserType,
+		{ folderId, storageId }: GetFolderFilesDto
+	): Promise<FileEntity[]> {
 		return await this.filesRepository.find({
 			where: {
-				owner: { id: userId },
+				owner: { id: user.id },
 				storage: { id: storageId },
 				parent: Boolean(folderId) ? { id: folderId } : IsNull(),
 			},
@@ -35,15 +35,17 @@ export class FilesService {
 		});
 	}
 
-	async findAll({
-		userId,
-		filesType = FileType.ALL,
-		offset = 0,
-		limit = 15,
-		sort = SortValue.NO,
-		search = '',
-		createdAt,
-	}: GetAllFilesQueryDto & { userId: number }): Promise<{
+	async findAll(
+		user: UserType,
+		{
+			filesType = FileType.ALL,
+			offset = 0,
+			limit = 15,
+			sort = SortValue.NO,
+			search = '',
+			createdAt,
+		}: GetAllFilesQueryDto
+	): Promise<{
 		files: FileEntity[];
 		count: number;
 	}> {
@@ -56,7 +58,7 @@ export class FilesService {
 
 		const findOptions: FindManyOptions<FileEntity> = {
 			where: {
-				owner: { id: userId },
+				owner: { id: user.id },
 
 				mimetype: Like(`%${mimetype}%`),
 				/* FIX TYPE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
@@ -90,15 +92,16 @@ export class FilesService {
 		return { files, count };
 	}
 
-	async create({
-		file,
-		userId,
-		storageId,
-		folderId,
-	}: {
-		file: Express.Multer.File;
-		userId: number;
-	} & CreateFileDto): Promise<FileEntity> {
+	async create(
+		user: UserType,
+		{
+			file,
+			storageId,
+			folderId,
+		}: {
+			file: Express.Multer.File;
+		} & CreateFileDto
+	): Promise<FileEntity> {
 		const remainingSpace = await this.storagesHelper.remainingSpace(
 			storageId
 		);
@@ -114,7 +117,7 @@ export class FilesService {
 			size: file.size,
 			mimetype: file.mimetype,
 			storage: { id: storageId },
-			owner: { id: userId },
+			owner: { id: user.id },
 		});
 
 		try {
@@ -127,20 +130,17 @@ export class FilesService {
 		}
 	}
 
-	async update({
-		id,
-		userId,
-		newOriginalName,
-		newFolderId,
-		isFavourite,
-	}: UpdateFileDto & { userId: number }): Promise<boolean> {
+	async update(
+		user: UserType,
+		{ id, newOriginalName, newFolderId, isFavourite }: UpdateFileDto
+	): Promise<boolean> {
 		const partialEntity: QueryDeepPartialEntity<FileEntity> = {};
 		if (newOriginalName) partialEntity.originalname = newOriginalName;
 		if (newFolderId) partialEntity.parent = { id: newFolderId };
 		if (isFavourite) partialEntity.isFavourite = isFavourite;
 
 		const result = await this.filesRepository.update(
-			{ id, owner: { id: userId } },
+			{ id, owner: { id: user.id } },
 			partialEntity
 		);
 
@@ -149,12 +149,12 @@ export class FilesService {
 		return true;
 	}
 
-	async softDelete(userId: number, ids: string): Promise<boolean> {
+	async softDelete(user: UserType, ids: string): Promise<boolean> {
 		const idsArray = ids.split(',');
 
 		const files = await this.filesRepository.find({
 			where: {
-				owner: { id: userId },
+				owner: { id: user.id },
 				id: In(idsArray),
 			},
 		});
@@ -167,37 +167,37 @@ export class FilesService {
 		});
 
 		await this.filesRepository.softDelete({
-			owner: { id: userId },
+			owner: { id: user.id },
 			id: In(idsArray),
 		});
 
 		return true;
 	}
 
-	async delete(userId: number, ids: string): Promise<boolean> {
+	async delete(user: UserType, ids: string): Promise<boolean> {
 		const idsArray = ids.split(',');
 
 		await this.filesRepository.delete({
-			owner: { id: userId },
+			owner: { id: user.id },
 			id: In(idsArray),
 		});
 
 		return true;
 	}
 
-	async getStatistic(userId: number): Promise<FilesStatistic> {
+	async getStatistic(user: UserType): Promise<FilesStatistic> {
 		const filesCount = await this.filesRepository.count({
 			where: {
-				owner: { id: userId },
+				owner: { id: user.id },
 			},
 		});
 
 		const averageFileSize = await this.filesRepository.average('size', {
-			owner: { id: userId },
+			owner: { id: user.id },
 		});
 
 		const totalFileSize = await this.filesRepository.sum('size', {
-			owner: { id: userId },
+			owner: { id: user.id },
 		});
 
 		return {
