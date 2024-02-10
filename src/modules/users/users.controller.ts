@@ -1,5 +1,6 @@
 import {
 	Body,
+	ClassSerializerInterceptor,
 	Controller,
 	Delete,
 	Get,
@@ -8,6 +9,7 @@ import {
 	Put,
 	Query,
 	UseGuards,
+	UseInterceptors,
 	ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -19,6 +21,7 @@ import { UserEntity } from '../../entities/user.entity';
 import { FilesStatistic } from 'src/modules/files/types/FilesStatistic';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

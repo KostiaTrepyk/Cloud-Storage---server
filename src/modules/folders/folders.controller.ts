@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,6 +8,7 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -21,6 +23,7 @@ import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
 import { User, UserType } from 'src/decorators/user.decorator';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Folders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

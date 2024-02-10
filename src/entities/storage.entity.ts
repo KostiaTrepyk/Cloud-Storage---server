@@ -18,7 +18,6 @@ export class StorageEntity {
   @Column()
   name: string;
 
-  /** Size is in megabytes */
   @Column()
   size: number;
 

@@ -11,6 +11,7 @@ import {
 	ValidationPipe,
 	Body,
 	Put,
+	ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -24,6 +25,7 @@ import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { GetFolderFilesDto } from './dto/get-folder-files.dto';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Files')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

@@ -1,4 +1,4 @@
-import { Body, Controller, Put, UseGuards } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Put, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ShareService } from './share.service';
 import { ShareFilesDto } from './dtos/share-files.dto';
@@ -8,6 +8,7 @@ import { ShareFoldersDto } from './dtos/share-folder.dto';
 import { UnshareFoldersDto } from './dtos/unshare-folder.dto';
 import { User, UserType } from 'src/decorators/user.decorator';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @ApiTags('share')

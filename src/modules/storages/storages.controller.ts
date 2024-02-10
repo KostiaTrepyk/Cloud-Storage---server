@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,6 +8,7 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -20,6 +22,7 @@ import { DeleteStorageDto } from './dto/delete-storage.dto';
 import { GetAllStoragesDto } from './dto/get-all-storages.dto';
 import { UpdateStorageDto } from './dto/update-storage.dto';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Storages')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
