@@ -10,16 +10,14 @@ import { StoragesModule } from './modules/storages/storages.module';
 import { DatabaseConfig } from './configs/database.config';
 import { ShareModule } from './modules/share/share.module';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerConfig } from './configs/throttler.config';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
-		ThrottlerModule.forRoot([
-			{
-				ttl: 60000,
-				limit: 30,
-			},
-		]),
+		ThrottlerModule.forRootAsync({
+			useClass: ThrottlerConfig,
+		}),
 		TypeOrmModule.forRootAsync({
 			imports: [ConfigModule],
 			useClass: DatabaseConfig,
