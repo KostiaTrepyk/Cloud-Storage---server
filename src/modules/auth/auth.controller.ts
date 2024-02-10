@@ -6,6 +6,7 @@ import { LocalAuthGuard } from './guards/local.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegistrationDto } from './dto/registration.dto';
 import { User, UserType } from 'src/decorators/user.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Auth')
@@ -13,6 +14,7 @@ import { User, UserType } from 'src/decorators/user.decorator';
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
+	@Throttle({ default: { limit: 5, ttl: 60000 } })
 	@ApiBody({ type: LoginDto })
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
