@@ -81,7 +81,7 @@ export class FilesController {
 		return await this.filesService.create(user, { file, ...dto });
 	}
 
-	@Put()
+	@Put('one')
 	async update(@User() user: UserType, @Body() dto: UpdateFileDto) {
 		return await this.filesService.update(user, dto);
 	}

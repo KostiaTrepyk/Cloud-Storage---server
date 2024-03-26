@@ -4,11 +4,9 @@ import { In, Repository } from 'typeorm';
 import { FileEntity } from 'src/entities/file.entity';
 import { FolderEntity } from 'src/entities/folder.entity';
 import { UserEntity } from 'src/entities/user.entity';
-import { UnshareFilesDto } from './dtos/unshare-fIles.dto';
-import { ShareFilesDto } from './dtos/share-files.dto';
-import { UnshareFoldersDto } from './dtos/unshare-folder.dto';
-import { ShareFoldersDto } from './dtos/share-folder.dto';
 import { UserType } from 'src/decorators/user.decorator';
+import { ShareDto } from './dtos/share.dto';
+import { UnshareDto } from './dtos/unshare.dto';
 
 @Injectable()
 export class ShareService {
@@ -21,20 +19,35 @@ export class ShareService {
 		private foldersRepository: Repository<FolderEntity>
 	) {}
 
-	async shareFiles(
+	async share(
 		user: UserType,
-		{ fileIds, userIdsToShareWith }: ShareFilesDto
-	): Promise<{ sharedWith: number[] }> {
-		const filesToShare = await this.filesRepository.find({
-			where: { id: In(fileIds), owner: { id: user.id } },
-			relations: { sharedWith: true },
-		});
+		dto: ShareDto
+	): Promise<{ sharedFiles: number[]; sharedFolders: number[] }> {
+		const defaultValues = {
+			folderIds: [],
+			fileIds: [],
+			userIdsToShareWith: [],
+		};
+		const { folderIds, fileIds, userIdsToShareWith } = {
+			...defaultValues,
+			...dto,
+		};
 
-		const usersToShare = await this.usersRepository.find({
-			where: { id: In(userIdsToShareWith) },
-		});
+		const [foldersToShare, filesToShare, usersToShare] = await Promise.all([
+			await this.foldersRepository.find({
+				where: { id: In(folderIds), owner: { id: user.id } },
+				relations: { sharedWith: true },
+			}),
+			await this.filesRepository.find({
+				where: { id: In(fileIds), owner: { id: user.id } },
+				relations: { sharedWith: true },
+			}),
+			await this.usersRepository.find({
+				where: { id: In(userIdsToShareWith) },
+			}),
+		]);
 
-		const result = await Promise.all(
+		const sharedFiles = await Promise.all(
 			filesToShare.map(async (file) => {
 				await this.filesRepository.save({
 					id: file.id,
@@ -46,22 +59,48 @@ export class ShareService {
 			})
 		);
 
-		return { sharedWith: result };
+		const sharedFolders = await Promise.all(
+			foldersToShare.map(async (folder) => {
+				await this.foldersRepository.save({
+					id: folder.id,
+					sharedWith: Array.from(
+						new Set([...usersToShare, ...folder.sharedWith])
+					),
+				});
+				return folder.id;
+			})
+		);
+
+		return { sharedFiles, sharedFolders };
 	}
 
-	async unshareFiles(
-		user: UserType,
-		{ fileIds, userIdsToRemove }: UnshareFilesDto
-	): Promise<boolean> {
-		const filesToUnshare = await this.filesRepository.find({
-			where: { id: In(fileIds), owner: { id: user.id } },
-			relations: { sharedWith: true },
-		});
-		const usersToUnshare = await this.usersRepository.find({
-			where: { id: In(userIdsToRemove) },
-		});
+	async unshare(user: UserType, dto: UnshareDto) {
+		const defaultValues = {
+			folderIds: [],
+			fileIds: [],
+			userIdsToRemove: [],
+		};
+		const { folderIds, fileIds, userIdsToRemove } = {
+			...defaultValues,
+			...dto,
+		};
 
-		await Promise.all(
+		const [foldersToUnshare, filesToUnshare, usersToUnshare] =
+			await Promise.all([
+				await this.foldersRepository.find({
+					where: { id: In(folderIds), owner: { id: user.id } },
+					relations: { sharedWith: true },
+				}),
+				await this.filesRepository.find({
+					where: { id: In(fileIds), owner: { id: user.id } },
+					relations: { sharedWith: true },
+				}),
+				await this.usersRepository.find({
+					where: { id: In(userIdsToRemove) },
+				}),
+			]);
+
+		const filesStatus = await Promise.all(
 			filesToUnshare.map(async (file) => {
 				const newUsers = file.sharedWith.filter((sharedWith) =>
 					usersToUnshare.includes(sharedWith)
@@ -71,53 +110,12 @@ export class ShareService {
 					id: file.id,
 					sharedWith: newUsers,
 				});
+
+				return { id: file.id, isUnshared: true };
 			})
 		);
 
-		return true;
-	}
-
-	async shareFolders(
-		user: UserType,
-		{ folderIds, userIdsToShareWith }: ShareFoldersDto
-	): Promise<{ sharedWith: number[] }> {
-		const fodlersToShare = await this.foldersRepository.find({
-			where: { id: In(folderIds), owner: { id: user.id } },
-			relations: { sharedWith: true },
-		});
-
-		const usersToShare = await this.usersRepository.find({
-			where: { id: In(userIdsToShareWith) },
-		});
-
-		const result = await Promise.all(
-			fodlersToShare.map(async (fodler) => {
-				await this.foldersRepository.save({
-					id: fodler.id,
-					sharedWith: Array.from(
-						new Set([...usersToShare, ...fodler.sharedWith])
-					),
-				});
-				return fodler.id;
-			})
-		);
-
-		return { sharedWith: result };
-	}
-
-	async unshareFolders(
-		user: UserType,
-		{ folderIds, userIdsToRemove }: UnshareFoldersDto
-	): Promise<boolean> {
-		const foldersToUnshare = await this.foldersRepository.find({
-			where: { id: In(folderIds), owner: { id: user.id } },
-			relations: { sharedWith: true },
-		});
-		const usersToUnshare = await this.usersRepository.find({
-			where: { id: In(userIdsToRemove) },
-		});
-
-		await Promise.all(
+		const foldersStatus = await Promise.all(
 			foldersToUnshare.map(async (folder) => {
 				const newUsers = folder.sharedWith.filter((sharedWith) =>
 					usersToUnshare.includes(sharedWith)
@@ -127,9 +125,10 @@ export class ShareService {
 					id: folder.id,
 					sharedWith: newUsers,
 				});
+				return { id: folder.id, isUnshared: true };
 			})
 		);
 
-		return true;
+		return { files: filesStatus, folders: foldersStatus };
 	}
 }
