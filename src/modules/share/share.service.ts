@@ -74,7 +74,10 @@ export class ShareService {
 		return { sharedFiles, sharedFolders };
 	}
 
-	async unshare(user: UserType, dto: UnshareDto) {
+	async unshare(
+		user: UserType,
+		dto: UnshareDto
+	): Promise<{ unsharedFiles: number[]; unsharedFolders: number[] }> {
 		const defaultValues = {
 			folderIds: [],
 			fileIds: [],
@@ -100,7 +103,7 @@ export class ShareService {
 				}),
 			]);
 
-		const filesStatus = await Promise.all(
+		const unsharedFiles = await Promise.all(
 			filesToUnshare.map(async (file) => {
 				const newUsers = file.sharedWith.filter((sharedWith) =>
 					usersToUnshare.includes(sharedWith)
@@ -111,11 +114,11 @@ export class ShareService {
 					sharedWith: newUsers,
 				});
 
-				return { id: file.id, isUnshared: true };
+				return file.id;
 			})
 		);
 
-		const foldersStatus = await Promise.all(
+		const unsharedFolders = await Promise.all(
 			foldersToUnshare.map(async (folder) => {
 				const newUsers = folder.sharedWith.filter((sharedWith) =>
 					usersToUnshare.includes(sharedWith)
@@ -125,10 +128,10 @@ export class ShareService {
 					id: folder.id,
 					sharedWith: newUsers,
 				});
-				return { id: folder.id, isUnshared: true };
+				return folder.id;
 			})
 		);
 
-		return { files: filesStatus, folders: foldersStatus };
+		return { unsharedFiles, unsharedFolders };
 	}
 }

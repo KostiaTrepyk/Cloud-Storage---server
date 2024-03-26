@@ -135,9 +135,15 @@ export class FilesService {
 		{ id, newOriginalName, newFolderId, isFavourite }: UpdateFileDto
 	): Promise<boolean> {
 		const partialEntity: QueryDeepPartialEntity<FileEntity> = {};
-		if (newOriginalName) partialEntity.originalname = newOriginalName;
-		if (newFolderId) partialEntity.parent = { id: newFolderId };
-		if (isFavourite) partialEntity.isFavourite = isFavourite;
+		if (newOriginalName !== undefined) {
+			partialEntity.originalname = newOriginalName;
+		}
+		if (newFolderId !== undefined) {
+			partialEntity.parent = { id: newFolderId };
+		}
+		if (isFavourite !== undefined) {
+			partialEntity.isFavourite = isFavourite;
+		}
 
 		const result = await this.filesRepository.update(
 			{ id, owner: { id: user.id } },

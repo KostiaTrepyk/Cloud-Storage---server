@@ -20,5 +20,5 @@ export class UpdateFileDto {
 	@ApiProperty({ required: false })
 	@IsOptional()
 	@IsBoolean()
-	isFavourite: boolean;
+	isFavourite?: boolean;
 }

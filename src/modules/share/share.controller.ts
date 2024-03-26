@@ -15,12 +15,24 @@ export class ShareController {
 	constructor(private shareService: ShareService) {}
 
 	@Put('share')
-	async share(@User() user: UserType, @Body() dto: ShareDto) {
+	async share(
+		@User() user: UserType,
+		@Body() dto: ShareDto
+	): Promise<{
+		sharedFiles: number[];
+		sharedFolders: number[];
+	}> {
 		return await this.shareService.share(user, dto);
 	}
 
 	@Put('unshare')
-	async unshare(@User() user: UserType, @Body() dto: UnshareDto) {
+	async unshare(
+		@User() user: UserType,
+		@Body() dto: UnshareDto
+	): Promise<{
+		unsharedFiles: number[];
+		unsharedFolders: number[];
+	}> {
 		return await this.shareService.unshare(user, dto);
 	}
 }
