@@ -4,6 +4,6 @@ export class ThrottlerConfig implements ThrottlerOptionsFactory {
 	createThrottlerOptions():
 		| ThrottlerModuleOptions
 		| Promise<ThrottlerModuleOptions> {
-		return [{ ttl: 60000, limit: 30 }];
+		return [{ ttl: 60000, limit: 100 }];
 	}
 }

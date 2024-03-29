@@ -103,35 +103,36 @@ export class ShareService {
 				}),
 			]);
 
-		const unsharedFiles = await Promise.all(
+		const updatedFiles = await Promise.all(
 			filesToUnshare.map(async (file) => {
-				const newUsers = file.sharedWith.filter((sharedWith) =>
-					usersToUnshare.includes(sharedWith)
+				const updatedSharedWith = file.sharedWith.filter((sharedWith) =>
+					usersToUnshare.some((user) => user.id !== sharedWith.id)
 				);
 
 				await this.filesRepository.save({
 					id: file.id,
-					sharedWith: newUsers,
+					sharedWith: updatedSharedWith,
 				});
 
 				return file.id;
 			})
 		);
 
-		const unsharedFolders = await Promise.all(
+		const updatedFolders = await Promise.all(
 			foldersToUnshare.map(async (folder) => {
-				const newUsers = folder.sharedWith.filter((sharedWith) =>
-					usersToUnshare.includes(sharedWith)
+				const updatedSharedWith = folder.sharedWith.filter(
+					(sharedWith) =>
+						usersToUnshare.some((user) => user.id !== sharedWith.id)
 				);
 
 				await this.foldersRepository.save({
 					id: folder.id,
-					sharedWith: newUsers,
+					sharedWith: updatedSharedWith,
 				});
 				return folder.id;
 			})
 		);
 
-		return { unsharedFiles, unsharedFolders };
+		return { unsharedFiles: updatedFiles, unsharedFolders: updatedFolders };
 	}
 }

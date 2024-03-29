@@ -32,10 +32,10 @@ export class StoragesService {
 		for (let id = 0; id < storages.length; id++) {
 			const storage = storages[id];
 
-			const totalFilesSize =
-				storage.files.reduce((acc, file) => acc + file.size, 0) /
-				1024 /
-				1024;
+			const totalFilesSize = storage.files.reduce(
+				(acc, file) => acc + file.size,
+				0
+			);
 			const remainingSpace = storage.size - totalFilesSize;
 
 			const { files, ...rest } = storage;

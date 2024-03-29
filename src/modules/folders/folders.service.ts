@@ -34,6 +34,7 @@ export class FoldersService {
 				storage: { id: storageId },
 				owner: { id: user.id },
 			},
+			relations: { sharedWith: true },
 		};
 		const foldersFindOptions: FindManyOptions<FolderEntity> = {
 			where: {
