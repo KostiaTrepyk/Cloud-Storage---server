@@ -20,10 +20,12 @@ import { User, UserType } from 'src/decorators/user.decorator';
 import { fileStorage } from './storage';
 import { FilesService } from './files.service';
 import { FileEntity } from '../../entities/file.entity';
-import { GetAllFilesQueryDto } from './dto/get-all-files';
+import { GetAllFilesQueryDto } from './dto/get-all-files.dto';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { GetFolderFilesDto } from './dto/get-folder-files.dto';
+import { DeleteFileDto } from './dto/delete-file.dto';
+import { SoftDeleteFileDto } from './dto/seft-delete.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('Files')
@@ -89,7 +91,14 @@ export class FilesController {
 	@Delete('softDelete')
 	async softDelete(
 		@User() user: UserType,
-		@Query('ids') dto: string
+		@Query(
+			new ValidationPipe({
+				transform: true,
+				transformOptions: { enableImplicitConversion: true },
+				forbidNonWhitelisted: true,
+			})
+		)
+		dto: SoftDeleteFileDto
 	): Promise<boolean> {
 		return await this.filesService.softDelete(user, dto);
 	}
@@ -97,8 +106,15 @@ export class FilesController {
 	@Delete('delete')
 	async delete(
 		@User() user: UserType,
-		@Query('ids') ids: string
+		@Query(
+			new ValidationPipe({
+				transform: true,
+				transformOptions: { enableImplicitConversion: true },
+				forbidNonWhitelisted: true,
+			})
+		)
+		dto: DeleteFileDto
 	): Promise<boolean> {
-		return await this.filesService.delete(user, ids);
+		return await this.filesService.delete(user, dto);
 	}
 }
