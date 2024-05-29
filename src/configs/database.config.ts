@@ -14,8 +14,8 @@ export class DatabaseConfig implements TypeOrmOptionsFactory {
         return {
             type: 'mysql',
             host: this.configService.get<string>('DB.HOST'),
-            port: this.configService.get<number>("DB.PORT"),
-            username: this.configService.get<string>("DB.USERNAME"),
+            port: this.configService.get<number>('DB.PORT'),
+            username: this.configService.get<string>('DB.USERNAME'),
             password: this.configService.get<string>('DB.PASSWORD'),
             database: this.configService.get<string>('DB.DATABASE'),
             entities: [UserEntity, StorageEntity, FolderEntity, FileEntity],

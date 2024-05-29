@@ -14,7 +14,7 @@ import { Throttle } from '@nestjs/throttler';
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
-	@Throttle({ default: { limit: 5, ttl: 60000 } })
+	@Throttle({ default: { limit: 2000000, ttl: 300_000 } })
 	@ApiBody({ type: LoginDto })
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
@@ -22,6 +22,7 @@ export class AuthController {
 		return await this.authService.login(user);
 	}
 
+	@Throttle({ default: { limit: 3, ttl: 7_200_000 } })
 	@Post('registration')
 	async registration(@Body() dto: RegistrationDto): Promise<{
 		token: string;

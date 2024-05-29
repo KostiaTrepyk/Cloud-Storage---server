@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { FolderEntity } from '../../entities/folder.entity';
-import { type FileEntity } from 'src/entities/file.entity';
 
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { DeleteFoldersDto } from './dto/delete-folders.dto';
 import { GetFolderOneDto } from './dto/get-folder-one';
-import { FilesService } from 'src/modules/files/files.service';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { UserType } from 'src/decorators/user.decorator';
 
@@ -16,8 +14,7 @@ import { UserType } from 'src/decorators/user.decorator';
 export class FoldersService {
 	constructor(
 		@InjectRepository(FolderEntity)
-		private foldersRepository: Repository<FolderEntity>,
-		private filesService: FilesService
+		private foldersRepository: Repository<FolderEntity>
 	) {}
 
 	async getOneFolder(
@@ -26,7 +23,6 @@ export class FoldersService {
 	): Promise<{
 		currentFolder: FolderEntity;
 		folders: FolderEntity[];
-		files: FileEntity[];
 	}> {
 		const currentFolderFindOptions: FindManyOptions<FolderEntity> = {
 			where: {
@@ -44,16 +40,12 @@ export class FoldersService {
 			},
 			relations: { sharedWith: true },
 		};
-		const [currentFolder, folders, files] = await Promise.all([
+		const [currentFolder, folders] = await Promise.all([
 			await this.foldersRepository.findOne(currentFolderFindOptions),
 			await this.foldersRepository.find(foldersFindOptions),
-			await this.filesService.findFolderFiles(user, {
-				folderId,
-				storageId,
-			}),
 		]);
 
-		return { currentFolder, folders, files };
+		return { currentFolder, folders };
 	}
 
 	async createFolder(

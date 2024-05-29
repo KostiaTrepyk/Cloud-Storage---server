@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
+import { FindManyOptions, IsNull, Like, Not, Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { FileEntity } from '../../entities/file.entity';
 import { FileType, SortValue } from './types/types';
@@ -88,9 +88,9 @@ export class FilesService {
 			take: limit,
 		};
 
-		const files = await this.filesRepository.find(findOptions).catch(()=>{
-			throw new HttpException("Can not get files.", HttpStatus.CONFLICT)
-		})
+		const files = await this.filesRepository.find(findOptions).catch(() => {
+			throw new HttpException('Can not get files.', HttpStatus.CONFLICT);
+		});
 
 		return { files, count: files.length };
 	}

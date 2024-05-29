@@ -54,7 +54,9 @@ export class StoragesService {
 			where: { owner: { id: user.id } },
 		});
 
-		if (counts >= 2) throw new HttpException('', HttpStatus.FORBIDDEN);
+		if (counts >= 2) {
+			throw new HttpException('Max 2 storages.', HttpStatus.BAD_REQUEST);
+		}
 
 		const createdStorage = await this.storagesRepository.save({
 			name,
