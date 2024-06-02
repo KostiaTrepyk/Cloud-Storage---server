@@ -91,4 +91,17 @@ export class FoldersService {
 
 		return Boolean(deleteResult.affected);
 	}
+
+	async getSharedFolders(user: UserType, {}: any) {
+		const findOptions: FindManyOptions<FolderEntity> = {
+			where: {
+				sharedWith: { id: user.id },
+			},
+		};
+		const [sharedFolders] = await Promise.all([
+			await this.foldersRepository.findOne(findOptions),
+		]);
+
+		return { sharedFolders };
+	}
 }

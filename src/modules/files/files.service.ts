@@ -25,8 +25,10 @@ export class FilesService {
 
 	async findFolderFiles(
 		user: UserType,
-		{ folderId, storageId }: GetFolderFilesDto
+		dto: GetFolderFilesDto
 	): Promise<FileEntity[]> {
+		const { folderId, storageId } = dto;
+
 		return await this.filesRepository.find({
 			where: {
 				owner: { id: user.id },
@@ -39,18 +41,20 @@ export class FilesService {
 
 	async findAll(
 		user: UserType,
-		{
+		dto: GetAllFilesQueryDto
+	): Promise<{
+		files: FileEntity[];
+		count: number;
+	}> {
+		const {
 			filesType = FileType.ALL,
 			offset = 0,
 			limit = 15,
 			sort = SortValue.NO,
 			search = '',
 			createdAt,
-		}: GetAllFilesQueryDto
-	): Promise<{
-		files: FileEntity[];
-		count: number;
-	}> {
+		} = dto;
+
 		const mimetype: string =
 			filesType === FileType.APPLICATIONS
 				? '%application%'
@@ -95,16 +99,23 @@ export class FilesService {
 		return { files, count: files.length };
 	}
 
+	async getSharedFiles(
+		user: UserType
+	): Promise<{ sharedFiles: FileEntity[] }> {
+		const sharedFiles = await this.filesRepository.find({
+			where: { sharedWith: { id: user.id } },
+		});
+		return { sharedFiles };
+	}
+
 	async create(
 		user: UserType,
-		{
-			file,
-			storageId,
-			folderId,
-		}: {
+		dto: {
 			file: Express.Multer.File;
 		} & CreateFileDto
 	): Promise<FileEntity> {
+		const { file, storageId, folderId } = dto;
+
 		const remainingSpace = await this.storagesHelper.remainingSpace(
 			storageId
 		);
@@ -130,10 +141,9 @@ export class FilesService {
 		}
 	}
 
-	async update(
-		user: UserType,
-		{ id, newOriginalName, newFolderId, isFavourite }: UpdateFileDto
-	): Promise<boolean> {
+	async update(user: UserType, dto: UpdateFileDto): Promise<boolean> {
+		const { id, newOriginalName, newFolderId, isFavourite } = dto;
+
 		// Validate input data
 		if (!id) {
 			throw new HttpException(
@@ -202,10 +212,9 @@ export class FilesService {
 		return true;
 	}
 
-	async softDelete(
-		user: UserType,
-		{ id }: SoftDeleteFileDto
-	): Promise<boolean> {
+	async softDelete(user: UserType, dto: SoftDeleteFileDto): Promise<boolean> {
+		const { id } = dto;
+
 		if (!id) {
 			throw new HttpException(
 				'File id is required.',
@@ -241,7 +250,9 @@ export class FilesService {
 		return true;
 	}
 
-	async delete(user: UserType, { id }: DeleteFileDto): Promise<boolean> {
+	async delete(user: UserType, dto: DeleteFileDto): Promise<boolean> {
+		const { id } = dto;
+		
 		if (!id) {
 			throw new HttpException(
 				'File id is required.',

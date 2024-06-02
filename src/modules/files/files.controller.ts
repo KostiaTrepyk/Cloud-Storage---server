@@ -68,6 +68,13 @@ export class FilesController {
 		return await this.filesService.findFolderFiles(user, dto);
 	}
 
+	@Get('shared')
+	async getSharedFiles(
+		@User() user: UserType
+	): Promise<{ sharedFiles: FileEntity[] }> {
+		return await this.filesService.getSharedFiles(user);
+	}
+
 	@Post('save')
 	@UseInterceptors(FileInterceptor('file', { storage: fileStorage }))
 	@ApiConsumes('multipart/form-data')

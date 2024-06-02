@@ -48,6 +48,21 @@ export class FoldersController {
 		return await this.foldersService.getOneFolder(user, dto);
 	}
 
+	@Get('sharedFolders')
+	async getSharedFolders(
+		@User() user: UserType,
+		@Query(
+			new ValidationPipe({
+				transform: true,
+				transformOptions: { enableImplicitConversion: true },
+				forbidNonWhitelisted: true,
+			})
+		)
+		dto: any
+	) {
+		return await this.foldersService.getSharedFolders(user, dto);
+	}
+
 	@Post()
 	async createFolder(
 		@User() user: UserType,
