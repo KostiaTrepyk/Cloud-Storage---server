@@ -48,7 +48,7 @@ export class FoldersController {
 		return await this.foldersService.getOneFolder(user, dto);
 	}
 
-	@Get('sharedFolders')
+	@Get('shared')
 	async getSharedFolders(
 		@User() user: UserType,
 		@Query(

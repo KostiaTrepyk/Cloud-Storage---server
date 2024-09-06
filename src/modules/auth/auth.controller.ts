@@ -22,7 +22,7 @@ export class AuthController {
 		return await this.authService.login(user);
 	}
 
-	@Throttle({ default: { limit: 3, ttl: 7_200_000 } })
+	@Throttle({ default: { limit: 30000000, ttl: 7_200_000 } })
 	@Post('registration')
 	async registration(@Body() dto: RegistrationDto): Promise<{
 		token: string;
