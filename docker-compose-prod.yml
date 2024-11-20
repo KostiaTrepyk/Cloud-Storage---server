@@ -3,9 +3,9 @@ services:
     container_name: cloud-storage--server
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: DockerfileProd
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     env_file:
       - path: ./.env
         required: true
